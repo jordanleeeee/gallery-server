@@ -1,6 +1,7 @@
 import http from 'http';
 import open from 'open';
 import * as fs from 'fs';
+import { networkInterfaces } from 'os';
 
 import {getContentType, getContentInDirectory} from './fileUtil';
 import {getDirectoryHtml} from "./htmlGenerator";
@@ -8,13 +9,12 @@ import {getLogger} from "./logger";
 
 const logger = getLogger()
 
-const hostname = '127.0.0.1';
 const port = 3000;
 const currentDirectory = process.cwd();
 
 console.log(`The current working directory is: ${currentDirectory}`);
 if (process.argv[2] === "openBrowser") {
-    open(`http://${hostname}:${port}/`).then();
+    open(`http://127.0.0.1:${port}/`).then();
 }
 
 const server = http.createServer((req, res) => {
@@ -53,6 +53,16 @@ const server = http.createServer((req, res) => {
 });
 
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+server.listen(port, "0.0.0.0", () => {
+    console.log(`Server available at `);
+    console.log(`\thttp://127.0.0.1:${port}`);
+    const nets = networkInterfaces()
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]!) {
+            if (net.family === "IPv4" && !net.internal) {
+                console.log(`\thttp://${net.address}:${port}`);
+                break
+            }
+        }
+    }
 });
