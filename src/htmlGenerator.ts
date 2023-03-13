@@ -1,7 +1,20 @@
 import {File} from "../type/file";
 import {isImage} from "./fileUtil";
 
-const htmlTemplate = `
+const directoryTemplate = `
+<!DOCTYPE html>
+<html lang="">
+<head>
+  <title>Gallery</title>
+</head>
+<body>
+    <h1>{{header}}</h1>
+    {{content}}
+</body>
+</html>
+`
+
+const galleryTemplate = `
 <!DOCTYPE html>
 <html lang="">
 <head>
@@ -16,7 +29,7 @@ const htmlTemplate = `
         height: 95%;
         background-color: rgba(0, 0, 0, 0.95);
         display: none;
-        z-index: 10;
+        z-index: 3;
     }
     
     #preview img {
@@ -53,11 +66,35 @@ const htmlTemplate = `
     }
     
     #images {
-        zoom: 50%
+        zoom: 50%;
+        padding-top: 50px;
+    }
+    
+    #scrollbar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 30px;
+        background-color: gray;
+        z-index: 2;
+        display: flex;
+        justify-content: center;
+    }
+
+    #scrollbar input[type="range"] {
+        width: 80%;
+        margin: 0 auto;
+        height: 20px;
+        background-color: white;
+        border: none;
     }
  </style>
 </head>
 <body>
+    <div id="scrollbar">
+        <input type="range" min="10" max="200" value="50" id="zoom-range" oninput="zoomImages()">
+    </div>
     <div id="preview">
         <button id="prev-btn" onclick="prevImage()">&#10094;</button>
         <img id="previewImage" src="#" alt="#" onclick="hidePreview()" />
@@ -77,6 +114,10 @@ const htmlTemplate = `
         currentImageIndex = Array.from(images).findIndex(img => decodeURI(imageSrc).endsWith(decodeURI(img.alt)));
     }
     
+    function hidePreview() {
+        document.getElementById('preview').style.display = 'none';
+    }
+    
     function prevImage() {
         currentImageIndex--;
         if (currentImageIndex < 0) {
@@ -93,9 +134,11 @@ const htmlTemplate = `
         showPreview(images[currentImageIndex].src)
     }
     
-    function hidePreview() {
-        document.getElementById('preview').style.display = 'none';
+    function zoomImages() {
+       let rangeValue = document.getElementById("zoom-range").value;
+       document.getElementById("images").style.zoom = rangeValue + "%";
     }
+
 </script>
 </html>
 `
@@ -103,14 +146,16 @@ const fileIcon = "file"
 const directoryIcon = "directory"
 
 export function getDirectoryHtml(files: File[], resources: string, showParentDir: boolean): string {
-    let html = htmlTemplate;
+    let html;
     const nonImageFile = files.filter(f => f.type === 'directory' || !isImage(f.contentType!));
     if (nonImageFile.length === 0 && files.length > 0) {
+        html = galleryTemplate;
         html = html.replace("{{header}}", "")
         const content = files.map(file => `<img onclick='showPreview("./${file.path}")' src="./${file.path}" alt="${file.path}" />`).join("\n")
         html = html.replace("{{content}}", `<div id="images">${content}</div>`);
     } else {
-        html = html.replace("{{header}}", `<h1>${resources}</h1>`)
+        html = directoryTemplate
+        html = html.replace("{{header}}", resources)
         let content = files.map(file => `<div>${file.type === "directory" ? directoryIcon : fileIcon} <a href="./${file.path}${file.type === "directory" ? "/" : ""}">${file.path}</a></div>`).join("\n")
 
         if (showParentDir) {
