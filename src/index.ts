@@ -38,7 +38,7 @@ const server = http.createServer((req, res) => {
         if (stats.isDirectory()) {
             const files = getContentInDirectory(resources);
             res.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-            res.end(getDirectoryHtml(files, resources, path))
+            res.end(getDirectoryHtml(files, resources, path !== '/'))
         } else if (stats.isFile()) {
             fs.readFile(resources, (err, data) => {
                 res.writeHead(200, {'Content-Type': getContentType(resources)});

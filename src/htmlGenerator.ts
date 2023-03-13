@@ -102,19 +102,19 @@ const htmlTemplate = `
 const fileIcon = "file"
 const directoryIcon = "directory"
 
-export function getDirectoryHtml(files: File[], resources: string, path: string): string {
+export function getDirectoryHtml(files: File[], resources: string, showParentDir: boolean): string {
     let html = htmlTemplate;
     const nonImageFile = files.filter(f => f.type === 'directory' || !isImage(f.contentType!));
     if (nonImageFile.length === 0 && files.length > 0) {
         html = html.replace("{{header}}", "")
-        const content = files.map(file => `<img onclick='showPreview("${path + "/" + file.path}")' src="${path + "/" + file.path}" alt="${file.path}" />`).join("\n")
+        const content = files.map(file => `<img onclick='showPreview("./${file.path}")' src="./${file.path}" alt="${file.path}" />`).join("\n")
         html = html.replace("{{content}}", `<div id="images">${content}</div>`);
     } else {
         html = html.replace("{{header}}", `<h1>${resources}</h1>`)
-        let parent = path.substring(1, path.length);
-        let content = files.map(file => `<div>${file.type === "directory"? directoryIcon: fileIcon}  <a href="${parent + "/" + file.path}">${file.path}</a></div>`).join("\n")
-        if (parent !== "") {
-            content = "<div>" + directoryIcon + "  <a href='../'>../</a></div>" + content;
+        let content = files.map(file => `<div>${file.type === "directory" ? directoryIcon : fileIcon} <a href="./${file.path}${file.type === "directory" ? "/" : ""}">${file.path}</a></div>`).join("\n")
+
+        if (showParentDir) {
+            content = "<div>" + directoryIcon + " <a href='../'>../</a></div>" + content;
         }
         html = html.replace("{{content}}", content);
     }
