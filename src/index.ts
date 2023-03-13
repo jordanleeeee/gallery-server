@@ -19,7 +19,6 @@ if (process.argv[2] === "openBrowser") {
 
 const server = http.createServer((req, res) => {
     let path = decodeURI(req.url!);
-    // console.log(path);
     logger.info(`${req.method} ${path}`)
 
     let resources = currentDirectory + path;
@@ -31,8 +30,8 @@ const server = http.createServer((req, res) => {
             } else {
                 res.statusCode = 500;
                 res.end(`Server error: ${err.message}`);
-                logger.error(err)
             }
+            logger.error(err)
             return
         }
 

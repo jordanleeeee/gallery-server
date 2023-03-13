@@ -16,7 +16,7 @@ const htmlTemplate = `
         height: 95%;
         background-color: rgba(0, 0, 0, 0.95);
         display: none;
-        z-index: 9999;
+        z-index: 10;
     }
     
     #preview img {
@@ -28,22 +28,69 @@ const htmlTemplate = `
         max-height: 100%;
     }
     
+    #prev-btn {
+        position: absolute;
+        height: 100%;
+        width: 4%;
+        background-color: transparent;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+    }
+    
+    #next-btn {
+        position: absolute;
+        height: 100%;
+        width: 4%;
+        left: 96%;
+        background-color: transparent;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 20px;
+        z-index: 20;
+    }
+    
     #images {
-        zoom: 30%
+        zoom: 50%
     }
  </style>
 </head>
 <body>
-    <div id="preview" onclick="hidePreview()"></div>
+    <div id="preview">
+        <button id="prev-btn" onclick="prevImage()">&#10094;</button>
+        <img id="previewImage" src="#" alt="#" onclick="hidePreview()" />
+        <button id="next-btn" onclick="nextImage()">&#10095;</button>
+    </div>
     {{header}}
     {{content}}
 </body>
 <script>
+   let currentImageIndex = 0;
+   let images = document.querySelectorAll('#images img')
    
     function showPreview(imageSrc) {
-        let preview = document.getElementById('preview');
-        preview.style.display = 'block';
-        preview.innerHTML = '<img onclick="showPreview()" src="' + imageSrc + '" alt="' + imageSrc + '" />'
+        document.getElementById('preview').style.display = 'block';
+        document.getElementById('previewImage').src = imageSrc;
+        document.getElementById('previewImage').alt = imageSrc;
+        currentImageIndex = Array.from(images).findIndex(img => decodeURI(imageSrc).endsWith(decodeURI(img.alt)));
+    }
+    
+    function prevImage() {
+        currentImageIndex--;
+        if (currentImageIndex < 0) {
+            currentImageIndex = images.length - 1;
+        }
+        showPreview(images[currentImageIndex].src)
+    }
+    
+    function nextImage() {
+        currentImageIndex++;
+        if (currentImageIndex >= images.length) {
+            currentImageIndex = 0;
+        }
+        showPreview(images[currentImageIndex].src)
     }
     
     function hidePreview() {
