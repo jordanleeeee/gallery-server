@@ -49,7 +49,7 @@ export function getContentType(filePath: string): string {
         case '.webm':
             return 'video/webm';
         default:
-            return 'application/octet-stream';
+            return 'text/plain';
     }
 }
 
