@@ -80,6 +80,7 @@ const galleryTemplate = `
         z-index: 2;
         display: flex;
         justify-content: center;
+        align-items: center;
     }
 
     #scrollbar input[type="range"] {
@@ -100,7 +101,6 @@ const galleryTemplate = `
         <img id="previewImage" src="#" alt="#" onclick="hidePreview()" />
         <button id="next-btn" onclick="nextImage()">&#10095;</button>
     </div>
-    {{header}}
     {{content}}
 </body>
 <script>
@@ -150,7 +150,6 @@ export function getDirectoryHtml(files: File[], resources: string, showParentDir
     const nonImageFile = files.filter(f => f.type === 'directory' || !isImage(f.contentType!));
     if (nonImageFile.length === 0 && files.length > 0) {
         html = galleryTemplate;
-        html = html.replace("{{header}}", "")
         const content = files.map(file => `<img onclick='showPreview("./${file.path}")' src="./${file.path}" alt="${file.path}" />`).join("\n")
         html = html.replace("{{content}}", `<div id="images">${content}</div>`);
     } else {
