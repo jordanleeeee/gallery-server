@@ -42,7 +42,7 @@ const Gallery = (fileProps: FileProps) => {
         <>
             <div className={styles.toolbar}>
                 <button onClick={() => router.back()}>
-                    <Image src={"/arrow.png"} alt={"back"} width={18} height={18}/>
+                    <Image src={"/back.png"} alt={"back"} width={18} height={18}/>
                 </button>
                 <input type="range" min="10" max="200" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
             </div>
