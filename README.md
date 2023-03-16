@@ -10,7 +10,7 @@ pnpm install
 pnpm build
 
 # add alias to .bashrc (or whatever config file)
-alias gallery-server='pnpm --dir $(pwd) start' # replace $(pwd) with your current location
+alias gallery-server='alias gallery-server="$(pwd)/node_modules/.bin/next start $(pwd)"' # replace $(pwd) with your current location
 source .bashrc
 ```
 
