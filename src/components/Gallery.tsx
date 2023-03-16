@@ -5,7 +5,7 @@ import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {useRouter} from "next/router";
 import Image from "next/image";
-import {encode} from "@/util/url";
+import {encode} from "@/util/urlUtil";
 
 const Gallery = (fileProps: FileProps) => {
     let [galleryZoom, setGalleryZoom] = useState("50");

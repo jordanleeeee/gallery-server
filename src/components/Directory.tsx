@@ -1,7 +1,7 @@
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
-import {encode} from "@/util/url";
+import {encode} from "@/util/urlUtil";
 
 const Directory = (fileProps: FileProps) => {
     return (

@@ -1,7 +1,7 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
 import * as fs from "fs";
 import {getContentType} from "@/util/fileUtil";
-import {decode} from "@/util/url";
+import {decode} from "@/util/urlUtil";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     let path = process.cwd() + decode(req.url!.substring(4, req.url?.length))
