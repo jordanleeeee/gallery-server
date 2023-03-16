@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs';
-import {File} from "../type/file";
+import {File} from "@/type/file";
 
 export function getContentType(filePath: string): string {
     const extension = path.extname(filePath);
