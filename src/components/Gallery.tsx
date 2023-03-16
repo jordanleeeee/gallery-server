@@ -5,6 +5,7 @@ import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {useRouter} from "next/router";
 import Image from "next/image";
+import {encode} from "@/util/url";
 
 const Gallery = (fileProps: FileProps) => {
     let [galleryZoom, setGalleryZoom] = useState("50");
@@ -19,7 +20,7 @@ const Gallery = (fileProps: FileProps) => {
 
     function toPreview(): ReadonlyArray<ReactImageGalleryItem> {
         return fileProps.files.map(_ => {
-            let imagePath = "/api" + fileProps.subPath + "/" + _.path;
+            let imagePath = encode("/api" + fileProps.subPath + "/" + _.path);
             return {
                 original: imagePath,
                 thumbnail: imagePath,
@@ -49,7 +50,7 @@ const Gallery = (fileProps: FileProps) => {
             <div className={styles.top}></div>
             <div className={styles.gallery} style={{zoom: galleryZoom + "%"}}>
                 {fileProps.files.map((_, idx) => (
-                    <Photo src={"/api" + fileProps.subPath + "/" + _.path} alt={_.path} idx={idx} openView={openView}/>
+                    <Photo src={encode("/api" + fileProps.subPath + "/" + _.path)} alt={_.path} idx={idx} openView={openView}/>
                 ))}
             </div>
         </>

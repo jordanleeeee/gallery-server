@@ -1,6 +1,7 @@
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
+import {encode} from "@/util/url";
 
 const Directory = (fileProps: FileProps) => {
     return (
@@ -22,9 +23,9 @@ interface Props {
 const Item = ({subPath, file}: Props) => {
     function getLink(): string {
         if (file.type === "directory") {
-            return `${subPath}/${file.path}/`;
+            return encode(`${subPath}/${file.path}/`);
         } else {
-            return `api${subPath}/${file.path}/`;
+            return encode(`api${subPath}/${file.path}/`);
         }
     }
 
