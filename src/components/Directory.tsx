@@ -31,7 +31,7 @@ const Item = ({subPath, file}: Props) => {
     return (
         <div>
             <span>
-                <Image src={file.type === "directory" ? "/folder.png" : "/files.png"} alt={"back"} width={18} height={18}/>
+                <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={18} height={18}/>
             </span>
             <Link href={getLink()}>{file.path}</Link>
         </div>
