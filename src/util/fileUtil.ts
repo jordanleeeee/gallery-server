@@ -2,6 +2,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {File} from "@/type/file";
 
+export function getRootPath() {
+    return process.cwd()
+}
+
 export function getContentType(filePath: string): string {
     const extension = path.extname(filePath);
     switch (extension) {
@@ -74,7 +78,7 @@ export function getContentInDirectory(path: string): File[] {
         if (!stats.isDirectory()) {
             items.contentType = getContentType(item)
         } else {
-            let innerContent = fs.readdirSync(path + "/" + item);
+            let innerContent = fs.readdirSync(path + "/" + item).filter(_ => !_.startsWith('.'));
             if (innerContent.length !== 0 && !innerContent.some(_ => !isImage(getContentType(_)))) {
                 items.type = "imageDirectory"
                 items.icon = item + "/" + innerContent[0]

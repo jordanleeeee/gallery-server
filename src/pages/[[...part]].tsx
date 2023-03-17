@@ -1,7 +1,7 @@
 import React from "react";
 import {GetServerSideProps} from "next";
 import {FileProps} from "@/type/file";
-import {getContentInDirectory} from "@/util/fileUtil";
+import {getContentInDirectory, getRootPath} from "@/util/fileUtil";
 import Home from "@/components/Home";
 
 const DynamicPage = (fileProps: FileProps) => {
@@ -9,7 +9,8 @@ const DynamicPage = (fileProps: FileProps) => {
 };
 
 export const getServerSideProps: GetServerSideProps<FileProps> = async ({params}) => {
-    let rootPath = process.cwd();
+    let rootPath = getRootPath()
+
     let subPath = "";
     if (params) {
         if (params.part) {

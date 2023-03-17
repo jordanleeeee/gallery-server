@@ -21,6 +21,7 @@
 .galleryEntryWrapper {
     display: flex;
     flex-wrap: wrap;
+    align-items: flex-start;
 }
 
 .galleryEntry {
@@ -31,6 +32,11 @@
     padding: 10px;
     text-decoration: none;
     color: black;
+    max-width: 18vw;
+}
+
+.galleryEntry img {
+    max-width: 18vw;
 }
 
 .fileEntry {

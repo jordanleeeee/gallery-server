@@ -77,7 +77,7 @@ const GalleryEntry = ({subPath, icon, file}: GalleryEntryProps) => {
 
     return (
         <Link href={getLink()} className={styles.galleryEntry}>
-            <Image src={encode(icon)} alt={file.path} width={100} height={100}/>
+            <img src={encode(icon)} alt={file.path}/>
             <span>{file.path}</span>
         </Link>
     );

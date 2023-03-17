@@ -8,7 +8,7 @@ import Image from "next/image";
 import {encode} from "@/util/urlUtil";
 
 const Gallery = (fileProps: FileProps) => {
-    let [galleryZoom, setGalleryZoom] = useState("50");
+    let [galleryZoom, setGalleryZoom] = useState("20");
     let [showPreview, setShowPreview] = useState(false);
     let [previewIdx, setPreviewIdx] = useState(0);
     const router = useRouter();
@@ -45,7 +45,7 @@ const Gallery = (fileProps: FileProps) => {
                 <button onClick={() => router.back()}>
                     <Image src={"/back.png"} alt={"back"} width={18} height={18}/>
                 </button>
-                <input type="range" min="10" max="200" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+                <input type="range" min="5" max="200" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
             </div>
             <div className={styles.top}></div>
             <div className={styles.gallery} style={{zoom: galleryZoom + "%"}}>

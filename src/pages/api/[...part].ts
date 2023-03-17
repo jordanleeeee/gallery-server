@@ -1,10 +1,10 @@
 import type {NextApiRequest, NextApiResponse} from 'next'
 import * as fs from "fs";
-import {getContentType} from "@/util/fileUtil";
+import {getContentType, getRootPath} from "@/util/fileUtil";
 import {decode} from "@/util/urlUtil";
 
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
-    let path = process.cwd() + decode(req.url!.substring(4, req.url?.length))
+    let path = getRootPath() + decode(req.url!.substring(4, req.url?.length))
 
     try {
         let buffer = fs.readFileSync(path);
