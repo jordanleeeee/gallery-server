@@ -1,22 +1,21 @@
-.lineContainer {
-    text-align: center;
+.divider {
     position: relative;
-    margin: 10px;
 }
 
-.line {
-    border: none;
-    height: 1px;
-    background-color: black;
-    width: 100%;
-}
-
-.text {
+.divider div {
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, -50%);
     position: absolute;
-    top: -0.5em;
-    background-color: white;
-    padding: 0 1em;
-    font-size: 18px;
+    background: white;
+    padding: 10px;
+    margin: 0 auto;
+}
+
+.divider hr {
+    border: none;
+    height: 2px;
+    background-color: black;
 }
 
 .galleryEntryWrapper {

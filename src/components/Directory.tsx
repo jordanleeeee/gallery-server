@@ -3,8 +3,12 @@ import Link from "next/link";
 import Image from "next/image";
 import {encode} from "@/util/urlUtil";
 import styles from "../styles/Directory.module.css";
+import {useRouter} from "next/router";
+
 
 const Directory = (fileProps: FileProps) => {
+    const router = useRouter()
+
     let galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory")
     let fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory")
 
@@ -13,14 +17,20 @@ const Directory = (fileProps: FileProps) => {
             <h1>{fileProps.rootPath + fileProps.subPath}</h1>
 
             <LineBreak content={"Files"}/>
-            {fileProps.subPath !== "" && <a href="../">../</a>}
+            {fileProps.subPath !== "" &&
+                <div className={styles.fileEntry}>
+                    <Image src={"/folder.png"} alt={"back"} width={20} height={20}/>
+                    <Link href={router.asPath + "/.."}>../</Link>
+                </div>
+            }
+
             {
                 fileAndDirectory.map((_, idx) => (
                     <FileAndDirectoryItem key={idx} subPath={fileProps.subPath} file={_}/>
                 ))
             }
 
-            <LineBreak content={"Gallery"}/>
+            {galleryDirectors.length > 0 && <LineBreak content={"Gallery"}/>}
             <div className={styles.galleryEntryWrapper}>
                 {
                     galleryDirectors.map((_, idx) => (
@@ -75,11 +85,10 @@ const GalleryEntry = ({subPath, icon, file}: GalleryEntryProps) => {
 
 const LineBreak = ({content}: { content: string }) => {
     return (
-        <div className={styles.lineContainer}>
-            <hr className={styles.line}/>
-            <span className={styles.text}>{content}</span>
+        <div className={styles.divider}>
+            <hr/>
+            <div>{content}</div>
         </div>
-
     );
 };
 
