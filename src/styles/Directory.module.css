@@ -1,0 +1,46 @@
+.lineContainer {
+    text-align: center;
+    position: relative;
+    margin: 10px;
+}
+
+.line {
+    border: none;
+    height: 1px;
+    background-color: black;
+    width: 100%;
+}
+
+.text {
+    position: absolute;
+    top: -0.5em;
+    background-color: white;
+    padding: 0 1em;
+    font-size: 18px;
+}
+
+.galleryEntryWrapper {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.galleryEntry {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 10px;
+    text-decoration: none;
+    color: black;
+}
+
+.fileEntry {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    padding: 2px;
+}
+
+.fileEntry img {
+    padding-right: 10px;
+}

@@ -1,7 +1,8 @@
 export interface File {
     path: string
-    type: "directory" | "file"
-    contentType?: string
+    type: "file" | "directory" | "imageDirectory"
+    contentType?: string // for file only
+    icon?: string // for imageDirectory
 }
 
 export interface FileProps {

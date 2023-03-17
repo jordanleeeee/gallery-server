@@ -70,8 +70,15 @@ export function getContentInDirectory(path: string): File[] {
             path: item,
             type: stats.isDirectory() ? "directory" : "file",
         };
+
         if (!stats.isDirectory()) {
             items.contentType = getContentType(item)
+        } else {
+            let innerContent = fs.readdirSync(path + "/" + item);
+            if (innerContent.length !== 0 && !innerContent.some(_ => !isImage(getContentType(_)))) {
+                items.type = "imageDirectory"
+                items.icon = item + "/" + innerContent[0]
+            }
         }
         files.push(items)
     }

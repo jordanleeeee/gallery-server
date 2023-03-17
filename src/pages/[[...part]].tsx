@@ -5,7 +5,7 @@ import {getContentInDirectory} from "@/util/fileUtil";
 import Home from "@/components/Home";
 
 const DynamicPage = (fileProps: FileProps) => {
-    return <Home rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files} />;
+    return <Home rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>;
 };
 
 export const getServerSideProps: GetServerSideProps<FileProps> = async ({params}) => {

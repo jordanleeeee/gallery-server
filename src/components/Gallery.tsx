@@ -50,7 +50,7 @@ const Gallery = (fileProps: FileProps) => {
             <div className={styles.top}></div>
             <div className={styles.gallery} style={{zoom: galleryZoom + "%"}}>
                 {fileProps.files.map((_, idx) => (
-                    <Photo src={encode("/api" + fileProps.subPath + "/" + _.path)} alt={_.path} idx={idx} openView={openView}/>
+                    <Photo key={idx} src={encode("/api" + fileProps.subPath + "/" + _.path)} alt={_.path} idx={idx} openView={openView}/>
                 ))}
             </div>
         </>
