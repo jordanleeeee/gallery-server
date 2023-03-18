@@ -1,17 +1,26 @@
 import {FileProps} from "@/type/file";
 import {ChangeEvent, useState} from "react";
 import ImageGallery, {ReactImageGalleryItem} from "react-image-gallery";
+import {Gallery, Image as GridImage} from "react-grid-gallery";
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {useRouter} from "next/router";
 import Image from "next/image";
 import {encode} from "@/util/urlUtil";
 
-const Gallery = (fileProps: FileProps) => {
-    let [galleryZoom, setGalleryZoom] = useState("20");
+const GalleryPage = (fileProps: FileProps) => {
+    let [galleryZoom, setGalleryZoom] = useState("200");
     let [showPreview, setShowPreview] = useState(false);
     let [previewIdx, setPreviewIdx] = useState(0);
     const router = useRouter();
+
+    let images: GridImage[] = fileProps.files.map(_ => {
+        return {
+            src: encode("/api" + fileProps.subPath + "/" + _.path),
+            width: _.imageWidth,
+            height: _.imageHeight
+        } as GridImage
+    })
 
     const zoomGallery = (event: ChangeEvent<HTMLInputElement>) => {
         const zoomValue = event.target.value;
@@ -37,35 +46,25 @@ const Gallery = (fileProps: FileProps) => {
         setShowPreview(false);
     };
 
-    return showPreview ? (
-        <Preview items={toPreview()} idx={previewIdx} closePreview={closePreview}/>
-    ) : (
+    return showPreview ?
+        <Preview items={toPreview()} idx={previewIdx} closePreview={closePreview}/> :
         <>
             <div className={styles.toolbar}>
                 <button onClick={() => router.back()}>
                     <Image src={"/back.png"} alt={"back"} width={18} height={18}/>
                 </button>
-                <input type="range" min="5" max="200" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+                <input type="range" min="10" max="500" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
             </div>
+
             <div className={styles.top}></div>
-            <div className={styles.gallery} style={{zoom: galleryZoom + "%"}}>
-                {fileProps.files.map((_, idx) => (
-                    <Photo key={idx} src={encode("/api" + fileProps.subPath + "/" + _.path)} alt={_.path} idx={idx} openView={openView}/>
-                ))}
+            <div style={{zoom: galleryZoom + "%"}}>
+                <Gallery
+                    images={images}
+                    enableImageSelection={false}
+                    onClick={openView}
+                />
             </div>
         </>
-    );
-};
-
-interface PhotoProps {
-    src: string;
-    alt: string;
-    idx: number;
-    openView: (idx: number) => void;
-}
-
-const Photo = ({src, alt, idx, openView}: PhotoProps) => {
-    return <img src={src} alt={alt} onClick={() => openView(idx)}/>;
 };
 
 interface PreviewProps {
@@ -75,7 +74,13 @@ interface PreviewProps {
 }
 
 const Preview = ({items, idx, closePreview}: PreviewProps) => {
-    return <ImageGallery items={items} startIndex={idx} slideInterval={2000} showIndex={true} onClick={() => closePreview()}/>;
+    return <ImageGallery
+        items={items}
+        startIndex={idx}
+        slideInterval={2000}
+        showIndex={true}
+        onClick={() => closePreview()}
+    />;
 };
 
-export default Gallery;
+export default GalleryPage;

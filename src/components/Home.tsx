@@ -1,6 +1,6 @@
 import {FileProps} from "@/type/file";
-import Directory from "@/components/Directory";
-import Gallery from "@/components/Gallery";
+import DirectoryPage from "@/components/DirectoryPage";
+import GalleryPage from "@/components/GalleryPage";
 
 const MyPage = (fileProps: FileProps) => {
     function showDirectory() {
@@ -9,9 +9,9 @@ const MyPage = (fileProps: FileProps) => {
     }
 
     return showDirectory() ? (
-        <Directory rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
+        <DirectoryPage rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
     ) : (
-        <Gallery rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
+        <GalleryPage rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
     );
 };
 export default MyPage;

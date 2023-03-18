@@ -6,7 +6,7 @@ import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
 
 
-const Directory = (fileProps: FileProps) => {
+const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter()
 
     let galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory")
@@ -92,4 +92,4 @@ const LineBreak = ({content}: { content: string }) => {
     );
 };
 
-export default Directory;
+export default DirectoryPage;

@@ -1,6 +1,7 @@
 import * as path from 'path';
 import * as fs from 'fs';
 import {File} from "@/type/file";
+import sizeOf from 'image-size';
 
 export function getRootPath() {
     return process.cwd()
@@ -70,21 +71,26 @@ export function getContentInDirectory(path: string): File[] {
 
         const itemPath = `${path}/${item}`;
         const stats = fs.statSync(itemPath);
-        let items: File = {
+        let file: File = {
             path: item,
             type: stats.isDirectory() ? "directory" : "file",
         };
 
         if (!stats.isDirectory()) {
-            items.contentType = getContentType(item)
+            file.contentType = getContentType(item)
+            if (isImage(file.contentType)) {
+                let imageSize = sizeOf(path + '/' + item);
+                file.imageWidth = imageSize.width
+                file.imageHeight = imageSize.height
+            }
         } else {
             let innerContent = fs.readdirSync(path + "/" + item).filter(_ => !_.startsWith('.'));
             if (innerContent.length !== 0 && !innerContent.some(_ => !isImage(getContentType(_)))) {
-                items.type = "imageDirectory"
-                items.icon = item + "/" + innerContent[0]
+                file.type = "imageDirectory"
+                file.icon = item + "/" + innerContent[0]
             }
         }
-        files.push(items)
+        files.push(file)
     }
     return files
 }

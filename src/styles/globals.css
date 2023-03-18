@@ -2,6 +2,11 @@
     height: 86vh;
 }
 
+.image-gallery-thumbnail {
+    width: auto !important;
+}
+
 .image-gallery-thumbnail-image {
     height: 10vh;
+    width: auto !important;
 }

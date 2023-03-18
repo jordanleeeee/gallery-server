@@ -8,6 +8,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    z-index: 10;
 }
 
 .toolbar input[type="range"] {
@@ -25,17 +26,6 @@
     color: white;
 }
 
-.gallery {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-start;
-}
-
-.gallery img {
-    object-fit: contain;
-}
-
 .top {
     height: 30px;
 }
-
