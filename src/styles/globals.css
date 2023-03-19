@@ -10,3 +10,11 @@
     height: 10vh;
     width: auto !important;
 }
+
+.ReactGridGallery_tile {
+    width: min-content;
+}
+
+.ReactGridGallery_tile-description {
+    background: rgb(238, 238, 238) !important;
+}

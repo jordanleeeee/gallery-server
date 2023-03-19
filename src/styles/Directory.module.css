@@ -1,3 +1,8 @@
+.title {
+    display: inline-flex;
+    flex-wrap: wrap;
+}
+
 .divider {
     position: relative;
 }
@@ -48,4 +53,12 @@
 
 .fileEntry img {
     padding-right: 10px;
+}
+
+.ReactGridGallery_tile {
+    width: min-content;
+}
+
+.ReactGridGallery_tile-description {
+    background: rgb(238, 238, 238) !important;
 }

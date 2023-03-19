@@ -4,6 +4,7 @@ import Image from "next/image";
 import {encode} from "@/util/urlUtil";
 import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
+import {Gallery, Image as GridImage} from "react-grid-gallery";
 
 
 const DirectoryPage = (fileProps: FileProps) => {
@@ -12,9 +13,20 @@ const DirectoryPage = (fileProps: FileProps) => {
     let galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory")
     let fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory")
 
+    function title() {
+        const urlPart: string[] = (fileProps.rootPath + fileProps.subPath).split('/');
+
+        let part = []
+        for (let i = 0; i < urlPart.length; i++) {
+            part.push(<div>{urlPart[i]}{i != urlPart.length - 1 && '/'}</div>)
+        }
+
+        return part
+    }
+
     return (
         <>
-            <h1>{fileProps.rootPath + fileProps.subPath}</h1>
+            <h1 className={styles.title}>{title()}</h1>
 
             <LineBreak content={"Files"}/>
             {fileProps.subPath !== "" &&
@@ -31,13 +43,25 @@ const DirectoryPage = (fileProps: FileProps) => {
             }
 
             {galleryDirectors.length > 0 && <LineBreak content={"Gallery"}/>}
-            <div className={styles.galleryEntryWrapper}>
-                {
-                    galleryDirectors.map((_, idx) => (
-                        <GalleryEntry key={idx} subPath={fileProps.subPath} icon={"/api" + fileProps.subPath + "/" + _.icon!} file={_}/>
-                    ))
-                }
-            </div>
+            <Gallery
+                images={galleryDirectors.map(_ => {
+                    return {
+                        src: encode("/api" + fileProps.subPath + "/" + _.icon!),
+                        height: _.imageHeight!,
+                        width: _.imageWidth!,
+                        thumbnailCaption: _.path,
+                    } as GridImage
+                })}
+                onClick={idx => router.push(encode(`${fileProps.subPath}/${galleryDirectors[idx].path}/`))}
+                enableImageSelection={false}
+                tileViewportStyle={{
+                    zoom: '160%',
+                    maxWidth: '29vw',
+                    overflow: 'hidden',
+                    display: 'flex',
+                    justifyContent: 'center',
+                }}
+            />
         </>
     );
 };
@@ -61,25 +85,6 @@ const FileAndDirectoryItem = ({subPath, file}: FileAndDirectoryProps) => {
             <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={20} height={20}/>
             <Link href={getLink()}>{file.path}</Link>
         </div>
-    );
-};
-
-interface GalleryEntryProps {
-    subPath: string;
-    icon: string;
-    file: File;
-}
-
-const GalleryEntry = ({subPath, icon, file}: GalleryEntryProps) => {
-    function getLink(): string {
-        return encode(`${subPath}/${file.path}/`);
-    }
-
-    return (
-        <Link href={getLink()} className={styles.galleryEntry}>
-            <img src={encode(icon)} alt={file.path}/>
-            <span>{file.path}</span>
-        </Link>
     );
 };
 

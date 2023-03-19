@@ -88,6 +88,10 @@ export function getContentInDirectory(path: string): File[] {
             if (innerContent.length !== 0 && !innerContent.some(_ => !isImage(getContentType(_)))) {
                 file.type = "imageDirectory"
                 file.icon = item + "/" + innerContent[0]
+
+                let imageSize = sizeOf(path + '/' +file.icon);
+                file.imageWidth = imageSize.width
+                file.imageHeight = imageSize.height
             }
         }
         files.push(file)
