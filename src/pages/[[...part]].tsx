@@ -3,12 +3,15 @@ import {GetServerSideProps} from "next";
 import {FileProps} from "@/type/file";
 import {getContentInDirectory, getRootPath} from "@/util/fileUtil";
 import Home from "@/components/Home";
+import {getLogger} from "@/util/logger";
 
 const DynamicPage = (fileProps: FileProps) => {
     return <Home rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>;
 };
 
-export const getServerSideProps: GetServerSideProps<FileProps> = async ({params}) => {
+const logger = getLogger()
+
+export const getServerSideProps: GetServerSideProps<FileProps> = async ({params, req}) => {
     let rootPath = getRootPath()
 
     let subPath = "";
@@ -16,6 +19,9 @@ export const getServerSideProps: GetServerSideProps<FileProps> = async ({params}
         if (params.part) {
             subPath += "/";
             subPath += (params.part as string[]).join("/");
+            logger.info("on request", {method: 'GET', path: subPath, ip: req.socket.remoteAddress})
+        } else {
+            logger.info("on request", {method: 'GET', path: "/", ip: req.socket.remoteAddress})
         }
     }
 
@@ -29,6 +35,7 @@ export const getServerSideProps: GetServerSideProps<FileProps> = async ({params}
             },
         };
     } catch (e) {
+        logger.error(e)
         return {
             notFound: true,
         };

@@ -30,7 +30,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
         let part = []
         for (let i = 0; i < urlPart.length; i++) {
-            part.push(<div>{urlPart[i]}{i != urlPart.length - 1 && '/'}</div>)
+            part.push(<div key={i}>{urlPart[i]}{i != urlPart.length - 1 && '/'}</div>)
         }
 
         return part
