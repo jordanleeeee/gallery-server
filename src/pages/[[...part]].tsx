@@ -30,7 +30,6 @@ export const getServerSideProps: GetServerSideProps<FileProps> = async ({params,
         return {
             props: {
                 rootPath,
-                subPath,
                 files: contentInDirectory,
             },
         };

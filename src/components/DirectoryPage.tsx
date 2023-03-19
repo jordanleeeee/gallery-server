@@ -1,7 +1,7 @@
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
-import {getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
+import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
 import {Gallery, Image as GridImage} from "react-grid-gallery";
@@ -26,7 +26,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
     function title() {
-        const urlPart: string[] = (fileProps.rootPath + router.asPath).split('/');
+        const urlPart: string[] = decode((fileProps.rootPath + router.asPath)).split('/');
 
         let part = []
         for (let i = 0; i < urlPart.length; i++) {
@@ -41,7 +41,7 @@ const DirectoryPage = (fileProps: FileProps) => {
             <h1 className={styles.title}>{title()}</h1>
 
             {
-                fileAndDirectory.length !== 0 || router.asPath !== "/" &&
+                fileAndDirectory.length + (router.asPath !== "/" ? 1 : 0) > 0 &&
                 <LineBreak content={"Files"}/>
             }
 
