@@ -71,9 +71,11 @@ export function getContentInDirectory(path: string): File[] {
 
         const itemPath = `${path}/${item}`;
         const stats = fs.statSync(itemPath);
+
         let file: File = {
             path: item,
             type: stats.isDirectory() ? "directory" : "file",
+            lastModify: stats.mtime.toISOString()
         };
 
         if (!stats.isDirectory()) {
@@ -89,7 +91,7 @@ export function getContentInDirectory(path: string): File[] {
                 file.type = "imageDirectory"
                 file.icon = item + "/" + innerContent[0]
 
-                let imageSize = sizeOf(path + '/' +file.icon);
+                let imageSize = sizeOf(path + '/' + file.icon);
                 file.imageWidth = imageSize.width
                 file.imageHeight = imageSize.height
             }

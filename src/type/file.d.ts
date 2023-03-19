@@ -5,6 +5,7 @@ export interface File {
     icon?: string           // for imageDirectory only
     imageWidth?: number     // if it is a image
     imageHeight?: number    // if it is a image
+    lastModify: string
 }
 
 export interface FileProps {

@@ -6,12 +6,24 @@ import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
 import {Gallery, Image as GridImage} from "react-grid-gallery";
 
+const dateTimeFormatOptions = {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+} as Intl.DateTimeFormatOptions
 
 const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter()
 
-    let galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory")
-    let fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory")
+    let galleryDirectors = fileProps.files
+        .filter(_ => _.type === "imageDirectory")
+        .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
+    let fileAndDirectory = fileProps.files
+        .filter(_ => _.type !== "imageDirectory")
+        .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
     function title() {
         const urlPart: string[] = (fileProps.rootPath + fileProps.subPath).split('/');
@@ -83,6 +95,7 @@ const FileAndDirectoryItem = ({subPath, file}: FileAndDirectoryProps) => {
     return (
         <div className={styles.fileEntry}>
             <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={20} height={20}/>
+            <div>{new Date(file.lastModify).toLocaleDateString('en-HK', dateTimeFormatOptions)}</div>
             <Link href={getLink()}>{file.path}</Link>
         </div>
     );
