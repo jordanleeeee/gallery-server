@@ -6,7 +6,7 @@ import Home from "@/components/Home";
 import {getLogger} from "@/util/logger";
 
 const DynamicPage = (fileProps: FileProps) => {
-    return <Home rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>;
+    return <Home rootPath={fileProps.rootPath} files={fileProps.files}/>;
 };
 
 const logger = getLogger()

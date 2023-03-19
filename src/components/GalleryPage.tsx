@@ -4,7 +4,7 @@ import {Gallery, Image as GridImage} from "react-grid-gallery";
 import {useRouter} from "next/router";
 import Image from "next/image";
 import {FileProps} from "@/type/file";
-import {encode} from "@/util/urlUtil";
+import {getFilePath} from "@/util/urlUtil";
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 
@@ -21,7 +21,7 @@ const GalleryPage = (fileProps: FileProps) => {
     return preview.show ?
         <ImageGallery
             items={fileProps.files.map(_ => {
-                let imagePath = encode("/api" + fileProps.subPath + "/" + _.path);
+                let imagePath = getFilePath(router.asPath, _.path);
                 return {
                     original: imagePath,
                     thumbnail: imagePath,
@@ -45,7 +45,7 @@ const GalleryPage = (fileProps: FileProps) => {
                 <Gallery
                     images={fileProps.files.map(_ => {
                         return {
-                            src: encode("/api" + fileProps.subPath + "/" + _.path),
+                            src: getFilePath(router.asPath, _.path),
                             width: _.imageWidth,
                             height: _.imageHeight
                         } as GridImage

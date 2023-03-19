@@ -1,7 +1,7 @@
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
-import {encode} from "@/util/urlUtil";
+import {getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
 import {Gallery, Image as GridImage} from "react-grid-gallery";
@@ -26,11 +26,11 @@ const DirectoryPage = (fileProps: FileProps) => {
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
     function title() {
-        const urlPart: string[] = (fileProps.rootPath + fileProps.subPath).split('/');
+        const urlPart: string[] = (fileProps.rootPath + router.asPath).split('/');
 
         let part = []
         for (let i = 0; i < urlPart.length; i++) {
-            part.push(<div key={i}>{urlPart[i]}{i != urlPart.length - 1 && '/'}</div>)
+            part.push(<div key={i}>{urlPart[i] + (i != urlPart.length - 1 ? '/' : '')}</div>)
         }
 
         return part
@@ -40,8 +40,12 @@ const DirectoryPage = (fileProps: FileProps) => {
         <>
             <h1 className={styles.title}>{title()}</h1>
 
-            <LineBreak content={"Files"}/>
-            {fileProps.subPath !== "" &&
+            {
+                fileAndDirectory.length !== 0 || router.asPath !== "/" &&
+                <LineBreak content={"Files"}/>
+            }
+
+            {router.asPath !== "/" &&
                 <div className={styles.fileEntry}>
                     <Image src={"/folder.png"} alt={"back"} width={20} height={20}/>
                     <Link href={router.asPath + "/.."}>../</Link>
@@ -50,7 +54,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
             {
                 fileAndDirectory.map((_, idx) => (
-                    <FileAndDirectoryItem key={idx} subPath={fileProps.subPath} file={_}/>
+                    <FileAndDirectoryItem key={idx} parent={router.asPath} file={_}/>
                 ))
             }
 
@@ -58,13 +62,13 @@ const DirectoryPage = (fileProps: FileProps) => {
             <Gallery
                 images={galleryDirectors.map(_ => {
                     return {
-                        src: encode("/api" + fileProps.subPath + "/" + _.icon!),
+                        src: getFilePath(router.asPath, _.icon!),
                         height: _.imageHeight!,
                         width: _.imageWidth!,
                         thumbnailCaption: _.path,
                     } as GridImage
                 })}
-                onClick={idx => router.push(encode(`${fileProps.subPath}/${galleryDirectors[idx].path}/`))}
+                onClick={idx => router.push(getDirectoryPath(router.asPath, galleryDirectors[idx].path)).then()}
                 enableImageSelection={false}
                 tileViewportStyle={{
                     zoom: '160%',
@@ -79,24 +83,16 @@ const DirectoryPage = (fileProps: FileProps) => {
 };
 
 interface FileAndDirectoryProps {
-    subPath: string;
+    parent: string;
     file: File;
 }
 
-const FileAndDirectoryItem = ({subPath, file}: FileAndDirectoryProps) => {
-    function getLink(): string {
-        if (file.type === "directory") {
-            return encode(`${subPath}/${file.path}/`);
-        } else {
-            return encode(`api${subPath}/${file.path}/`);
-        }
-    }
-
+const FileAndDirectoryItem = ({parent, file}: FileAndDirectoryProps) => {
     return (
         <div className={styles.fileEntry}>
             <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={20} height={20}/>
             <div>{new Date(file.lastModify).toLocaleDateString('en-HK', dateTimeFormatOptions)}</div>
-            <Link href={getLink()}>{file.path}</Link>
+            <Link href={getResourcesPath(parent, file)}>{file.path}</Link>
         </div>
     );
 };

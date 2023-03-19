@@ -10,7 +10,6 @@ export interface File {
 
 export interface FileProps {
     rootPath: string
-    subPath: string
     files: File[] // undefined represent a file
 }
 

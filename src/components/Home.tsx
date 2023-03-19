@@ -9,9 +9,9 @@ const MyPage = (fileProps: FileProps) => {
     }
 
     return showDirectory() ? (
-        <DirectoryPage rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
+        <DirectoryPage rootPath={fileProps.rootPath} files={fileProps.files}/>
     ) : (
-        <GalleryPage rootPath={fileProps.rootPath} subPath={fileProps.subPath} files={fileProps.files}/>
+        <GalleryPage rootPath={fileProps.rootPath} files={fileProps.files}/>
     );
 };
 export default MyPage;
