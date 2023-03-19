@@ -2,7 +2,8 @@ import type {NextApiRequest, NextApiResponse} from 'next'
 import imagemin from 'imagemin'
 import imageminMozjpeg from 'imagemin-mozjpeg'
 import * as fs from "fs";
-import {getContentType, getRootPath} from "@/util/fileUtil";
+import {getContentType} from "@/util/fileUtil";
+import {getRootPath} from "@/util/urlUtil";
 import {decode} from "@/util/urlUtil";
 import {getLogger} from "@/util/logger";
 

@@ -1,3 +1,8 @@
+export interface FileProps {
+    rootPath: string
+    files: File[] // undefined represent a file
+}
+
 export interface File {
     path: string
     type: "file" | "directory" | "imageDirectory"
@@ -6,10 +11,5 @@ export interface File {
     imageWidth?: number     // if it is a image
     imageHeight?: number    // if it is a image
     lastModify: string
-}
-
-export interface FileProps {
-    rootPath: string
-    files: File[] // undefined represent a file
 }
 

@@ -10,7 +10,7 @@ import "react-image-gallery/styles/css/image-gallery.css";
 
 const GalleryPage = (fileProps: FileProps) => {
     let [galleryZoom, setGalleryZoom] = useState("200");
-    let [preview, setPreview] = useState({show: false, idx: 0});
+    let [preview, setPreview] = useState<{ show: boolean, idx?: number }>({show: false});
     let router = useRouter();
 
     const zoomGallery = (event: ChangeEvent<HTMLInputElement>) => {
@@ -30,7 +30,7 @@ const GalleryPage = (fileProps: FileProps) => {
             startIndex={preview.idx}
             slideInterval={2000}
             showIndex={true}
-            onClick={() => setPreview({show: false, idx: 0})}
+            onClick={() => setPreview({show: false})}
         /> :
         <>
             <div className={styles.toolbar}>
@@ -46,9 +46,9 @@ const GalleryPage = (fileProps: FileProps) => {
                     images={fileProps.files.map(_ => {
                         return {
                             src: getFilePath(router.asPath, _.path),
-                            width: _.imageWidth,
-                            height: _.imageHeight
-                        } as GridImage
+                            height: _.imageHeight!,
+                            width: _.imageWidth!
+                        }
                     })}
                     enableImageSelection={false}
                     onClick={(idx) => setPreview({show: true, idx})}

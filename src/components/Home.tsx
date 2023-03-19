@@ -2,7 +2,7 @@ import {FileProps} from "@/type/file";
 import DirectoryPage from "@/components/DirectoryPage";
 import GalleryPage from "@/components/GalleryPage";
 
-const MyPage = (fileProps: FileProps) => {
+const Home = (fileProps: FileProps) => {
     function showDirectory() {
         return fileProps.files.length == 0
             || !fileProps.files.every(_ => _.type === "file" && _.contentType!.includes("image"));
@@ -14,4 +14,4 @@ const MyPage = (fileProps: FileProps) => {
         <GalleryPage rootPath={fileProps.rootPath} files={fileProps.files}/>
     );
 };
-export default MyPage;
+export default Home;

@@ -1,7 +1,8 @@
 import React from "react";
 import {GetServerSideProps} from "next";
 import {FileProps} from "@/type/file";
-import {getContentInDirectory, getRootPath} from "@/util/fileUtil";
+import {getContentInDirectory} from "@/util/fileUtil";
+import {getRootPath} from "@/util/urlUtil";
 import Home from "@/components/Home";
 import {getLogger} from "@/util/logger";
 

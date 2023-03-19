@@ -4,7 +4,7 @@ import Image from "next/image";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import styles from "../styles/Directory.module.css";
 import {useRouter} from "next/router";
-import {Gallery, Image as GridImage} from "react-grid-gallery";
+import {Gallery} from "react-grid-gallery";
 
 const dateTimeFormatOptions = {
     day: '2-digit',
@@ -45,7 +45,8 @@ const DirectoryPage = (fileProps: FileProps) => {
                 <LineBreak content={"Files"}/>
             }
 
-            {router.asPath !== "/" &&
+            {
+                router.asPath !== "/" &&
                 <div className={styles.fileEntry}>
                     <Image src={"/folder.png"} alt={"back"} width={20} height={20}/>
                     <Link href={router.asPath + "/.."}>../</Link>
@@ -59,6 +60,7 @@ const DirectoryPage = (fileProps: FileProps) => {
             }
 
             {galleryDirectors.length > 0 && <LineBreak content={"Gallery"}/>}
+
             <Gallery
                 images={galleryDirectors.map(_ => {
                     return {
@@ -66,7 +68,7 @@ const DirectoryPage = (fileProps: FileProps) => {
                         height: _.imageHeight!,
                         width: _.imageWidth!,
                         thumbnailCaption: _.path,
-                    } as GridImage
+                    }
                 })}
                 onClick={idx => router.push(getDirectoryPath(router.asPath, galleryDirectors[idx].path)).then()}
                 enableImageSelection={false}

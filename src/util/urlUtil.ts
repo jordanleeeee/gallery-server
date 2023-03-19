@@ -1,6 +1,10 @@
 import {File} from "@/type/file";
 
-function encode(url: string): string {
+export function getRootPath() {
+    return process.cwd()
+}
+
+export function encode(url: string): string {
     return url.split('/').map(_ => encodeURIComponent(_)).join('/')
 }
 

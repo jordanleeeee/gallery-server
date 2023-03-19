@@ -3,10 +3,6 @@ import * as fs from 'fs';
 import {File} from "@/type/file";
 import sizeOf from 'image-size';
 
-export function getRootPath() {
-    return process.cwd()
-}
-
 export function getContentType(filePath: string): string {
     const extension = path.extname(filePath);
     switch (extension) {
