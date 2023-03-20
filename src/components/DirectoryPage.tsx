@@ -70,15 +70,9 @@ const DirectoryPage = (fileProps: FileProps) => {
                         thumbnailCaption: _.path,
                     }
                 })}
+                rowHeight={288}
                 onClick={idx => router.push(getDirectoryPath(router.asPath, galleryDirectors[idx].path)).then()}
                 enableImageSelection={false}
-                tileViewportStyle={{
-                    zoom: '160%',
-                    maxWidth: '29vw',
-                    overflow: 'hidden',
-                    display: 'flex',
-                    justifyContent: 'center',
-                }}
             />
         </>
     );

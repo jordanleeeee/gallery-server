@@ -1,6 +1,6 @@
 import {ChangeEvent, useState} from "react";
 import ImageGallery from "react-image-gallery";
-import {Gallery, Image as GridImage} from "react-grid-gallery";
+import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
 import Image from "next/image";
 import {FileProps} from "@/type/file";
@@ -9,7 +9,7 @@ import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 
 const GalleryPage = (fileProps: FileProps) => {
-    let [galleryZoom, setGalleryZoom] = useState("200");
+    let [galleryZoom, setGalleryZoom] = useState("50");
     let [preview, setPreview] = useState<{ show: boolean, idx?: number }>({show: false});
     let router = useRouter();
 
@@ -34,14 +34,12 @@ const GalleryPage = (fileProps: FileProps) => {
         /> :
         <>
             <div className={styles.toolbar}>
-                <button onClick={() => router.back()}>
-                    <Image src={"/back.png"} alt={"back"} width={18} height={18}/>
-                </button>
-                <input type="range" min="10" max="500" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+                <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
+                <input type="range" min="20" max="180" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
             </div>
 
             <div className={styles.top}></div>
-            <div style={{zoom: galleryZoom + '%'}}>
+            <div>
                 <Gallery
                     images={fileProps.files.map(_ => {
                         return {
@@ -50,6 +48,7 @@ const GalleryPage = (fileProps: FileProps) => {
                             width: _.imageWidth!
                         }
                     })}
+                    rowHeight={360 * parseInt(galleryZoom) / 50}
                     enableImageSelection={false}
                     onClick={(idx) => setPreview({show: true, idx})}
                 />
