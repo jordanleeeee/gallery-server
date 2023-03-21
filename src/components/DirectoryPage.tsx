@@ -1,3 +1,4 @@
+import React from 'react';
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
@@ -25,7 +26,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         .filter(_ => _.type !== "imageDirectory")
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
-    function title() {
+    function title(): JSX.Element[] {
         const urlPart: string[] = decode((fileProps.rootPath + router.asPath)).split('/');
 
         let part = []
@@ -83,7 +84,7 @@ interface FileAndDirectoryProps {
     file: File;
 }
 
-const FileAndDirectoryItem = ({parent, file}: FileAndDirectoryProps) => {
+const FileAndDirectoryItem = React.memo(({parent, file}: FileAndDirectoryProps) => {
     return (
         <div className={styles.fileEntry}>
             <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={20} height={20}/>
@@ -95,7 +96,7 @@ const FileAndDirectoryItem = ({parent, file}: FileAndDirectoryProps) => {
             }
         </div>
     );
-};
+});
 
 const LineBreak = ({content}: { content: string }) => {
     return (

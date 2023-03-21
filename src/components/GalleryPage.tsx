@@ -5,6 +5,7 @@ import {useRouter} from "next/router";
 import Image from "next/image";
 import {FileProps} from "@/type/file";
 import {getFilePath} from "@/util/urlUtil";
+import Modal from 'react-modal';
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 
@@ -18,42 +19,51 @@ const GalleryPage = (fileProps: FileProps) => {
         setGalleryZoom(zoomValue);
     };
 
-    return preview.show ?
-        <ImageGallery
-            items={fileProps.files.map(_ => {
-                let imagePath = getFilePath(router.asPath, _.path);
-                return {
-                    original: imagePath,
-                    thumbnail: imagePath,
-                };
-            })}
-            startIndex={preview.idx}
-            slideInterval={2000}
-            showIndex={true}
-            onClick={() => setPreview({show: false})}
-        /> :
-        <>
-            <div className={styles.toolbar}>
-                <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
-                <input type="range" min="20" max="180" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
-            </div>
+    return <>
+        <Modal isOpen={preview.show}
+               onAfterOpen={() => document.body.style.overflow = 'hidden'} // not allow scrolling when modal is open
+               onAfterClose={() => document.body.style.overflow = 'auto'}
+               style={{ // modal cover whole screen
+                   content: {position: 'inherit', inset: 0, padding: '8px', border: "none"},
+                   overlay: {zIndex: 2}
+               }}
+        >
+            <ImageGallery
+                items={fileProps.files.map(_ => {
+                    let imagePath = getFilePath(router.asPath, _.path);
+                    return {
+                        original: imagePath,
+                        thumbnail: imagePath,
+                    };
+                })}
+                startIndex={preview.idx}
+                slideInterval={2000}
+                showIndex={true}
+                onClick={() => setPreview({show: false})}
+            />
+        </Modal>
 
-            <div className={styles.top}></div>
-            <div>
-                <Gallery
-                    images={fileProps.files.map(_ => {
-                        return {
-                            src: getFilePath(router.asPath, _.path),
-                            height: _.imageHeight!,
-                            width: _.imageWidth!
-                        }
-                    })}
-                    rowHeight={360 * parseInt(galleryZoom) / 50}
-                    enableImageSelection={false}
-                    onClick={(idx) => setPreview({show: true, idx})}
-                />
-            </div>
-        </>
+        <div className={styles.toolbar}>
+            <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
+            <input type="range" min="20" max="180" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+        </div>
+
+        <div className={styles.top}></div>
+        <div>
+            <Gallery
+                images={fileProps.files.map(_ => {
+                    return {
+                        src: getFilePath(router.asPath, _.path),
+                        height: _.imageHeight!,
+                        width: _.imageWidth!
+                    }
+                })}
+                rowHeight={360 * parseInt(galleryZoom) / 50}
+                enableImageSelection={false}
+                onClick={(idx) => setPreview({show: true, idx})}
+            />
+        </div>
+    </>
 };
 
 export default GalleryPage;
