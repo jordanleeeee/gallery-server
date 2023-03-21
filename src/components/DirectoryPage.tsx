@@ -26,7 +26,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         .filter(_ => _.type !== "imageDirectory")
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
-    function title(): JSX.Element[] {
+    function title() {
         const urlPart: string[] = decode((fileProps.rootPath + router.asPath)).split('/');
 
         let part = []
@@ -97,6 +97,8 @@ const FileAndDirectoryItem = React.memo(({parent, file}: FileAndDirectoryProps) 
         </div>
     );
 });
+
+FileAndDirectoryItem.displayName = 'FileAndDirectoryItem'
 
 const LineBreak = ({content}: { content: string }) => {
     return (
