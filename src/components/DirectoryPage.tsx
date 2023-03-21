@@ -88,7 +88,11 @@ const FileAndDirectoryItem = ({parent, file}: FileAndDirectoryProps) => {
         <div className={styles.fileEntry}>
             <Image src={file.type === "directory" ? "/folder.png" : "/file.png"} alt={"back"} width={20} height={20}/>
             <div>{new Date(file.lastModify).toLocaleDateString('en-HK', dateTimeFormatOptions)}</div>
-            <Link href={getResourcesPath(parent, file)}>{file.path}</Link>
+            {
+                file.type === "directory" ?
+                    <Link href={getResourcesPath(parent, file)}>{file.path}</Link> :
+                    <a href={'/' + getResourcesPath(parent, file)}>{file.path}</a>
+            }
         </div>
     );
 };
