@@ -28,3 +28,7 @@
 .top {
     height: 30px;
 }
+
+.noScroll {
+    overflow: hidden;
+}

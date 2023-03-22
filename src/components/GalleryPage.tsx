@@ -21,8 +21,7 @@ const GalleryPage = (fileProps: FileProps) => {
 
     return <>
         <Modal isOpen={preview.show}
-               onAfterOpen={() => document.body.style.overflow = 'hidden'} // not allow scrolling when modal is open
-               onAfterClose={() => document.body.style.overflow = 'auto'}
+               bodyOpenClassName={styles.noScroll}
                style={{ // modal cover whole screen
                    content: {position: 'inherit', inset: 0, padding: '8px', border: "none"},
                    overlay: {zIndex: 2}
