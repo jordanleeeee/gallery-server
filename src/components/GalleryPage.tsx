@@ -48,7 +48,8 @@ const GalleryPage = (fileProps: FileProps) => {
         </div>
 
         <div className={styles.top}></div>
-        <div>
+        <div className={styles.galleryContainer}>
+        {/*<div style={{width: '100%', background: "red"}}>*/}
             <Gallery
                 images={fileProps.files.map(_ => {
                     return {
@@ -57,7 +58,7 @@ const GalleryPage = (fileProps: FileProps) => {
                         width: _.imageWidth!
                     }
                 })}
-                rowHeight={360 * parseInt(galleryZoom) / 50}
+                rowHeight={360 * (parseInt(galleryZoom) / 50)}
                 enableImageSelection={false}
                 onClick={(idx) => setPreview({show: true, idx})}
             />

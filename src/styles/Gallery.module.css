@@ -32,3 +32,13 @@
 .noScroll {
     overflow: hidden;
 }
+
+.galleryContainer {
+    width: calc(100vw - 16px - 15px)
+}
+
+@media screen and (max-width: 767px) {
+    .galleryContainer {
+        width: calc(100vw - 16px)
+    }
+}
