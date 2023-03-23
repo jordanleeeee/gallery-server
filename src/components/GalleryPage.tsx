@@ -48,21 +48,18 @@ const GalleryPage = (fileProps: FileProps) => {
         </div>
 
         <div className={styles.top}></div>
-        <div className={styles.galleryContainer}>
-        {/*<div style={{width: '100%', background: "red"}}>*/}
-            <Gallery
-                images={fileProps.files.map(_ => {
-                    return {
-                        src: getFilePath(router.asPath, _.path),
-                        height: _.imageHeight!,
-                        width: _.imageWidth!
-                    }
-                })}
-                rowHeight={360 * (parseInt(galleryZoom) / 50)}
-                enableImageSelection={false}
-                onClick={(idx) => setPreview({show: true, idx})}
-            />
-        </div>
+        <Gallery
+            images={fileProps.files.map(_ => {
+                return {
+                    src: getFilePath(router.asPath, _.path),
+                    height: _.imageHeight!,
+                    width: _.imageWidth!
+                }
+            })}
+            rowHeight={360 * (parseInt(galleryZoom) / 50)}
+            enableImageSelection={false}
+            onClick={(idx) => setPreview({show: true, idx})}
+        />
     </>
 };
 
