@@ -68,7 +68,7 @@ const DirectoryPage = (fileProps: FileProps) => {
                         src: getFilePath(router.asPath, _.icon!),
                         height: _.imageHeight!,
                         width: _.imageWidth!,
-                        thumbnailCaption: _.path,
+                        thumbnailCaption: _.path
                     }
                 })}
                 rowHeight={288}

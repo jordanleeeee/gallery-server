@@ -1,4 +1,4 @@
-import {ChangeEvent, useState} from "react";
+import {ChangeEvent, TouchEventHandler, useState} from "react";
 import ImageGallery from "react-image-gallery";
 import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
@@ -9,15 +9,41 @@ import Modal from 'react-modal';
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 
+let diffStart: number
+let zoomStart: number
+const zoomMin: number = 20
+const zoomMax: number = 180
+
 const GalleryPage = (fileProps: FileProps) => {
-    let [galleryZoom, setGalleryZoom] = useState("50");
+    let [galleryZoom, setGalleryZoom] = useState(50);
     let [preview, setPreview] = useState<{ show: boolean, idx?: number }>({show: false});
     let router = useRouter();
 
     const zoomGallery = (event: ChangeEvent<HTMLInputElement>) => {
         const zoomValue = event.target.value;
-        setGalleryZoom(zoomValue);
+        setGalleryZoom(parseInt(zoomValue));
     };
+
+    const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {
+        let touch1 = event.touches[0]
+        let touch2 = event.touches[1]
+        if (touch1 === undefined || touch2 === undefined) return
+        diffStart = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        zoomStart = galleryZoom
+    }
+
+    const onTouchMove: TouchEventHandler<HTMLDivElement> = (event) => {
+        const touch1 = event.touches[0];
+        const touch2 = event.touches[1];
+        if (touch1 === undefined || touch2 === undefined) return
+
+        const diffNow = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        let targetZoom = zoomStart + ((diffNow - diffStart) / 10);
+
+        if (targetZoom >= zoomMax) setGalleryZoom(zoomMax);
+        else if (targetZoom <= zoomMin) setGalleryZoom(zoomMin)
+        else setGalleryZoom(targetZoom)
+    }
 
     return <>
         <Modal isOpen={preview.show}
@@ -44,22 +70,24 @@ const GalleryPage = (fileProps: FileProps) => {
 
         <div className={styles.toolbar}>
             <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
-            <input type="range" min="20" max="180" value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+            <input type="range" min={zoomMin} max={zoomMax} value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
         </div>
 
         <div className={styles.top}></div>
-        <Gallery
-            images={fileProps.files.map(_ => {
-                return {
-                    src: getFilePath(router.asPath, _.path),
-                    height: _.imageHeight!,
-                    width: _.imageWidth!
-                }
-            })}
-            rowHeight={360 * (parseInt(galleryZoom) / 50)}
-            enableImageSelection={false}
-            onClick={(idx) => setPreview({show: true, idx})}
-        />
+        <div className={styles.gridGalleryContainer} onTouchStart={onTouchStart} onTouchMove={onTouchMove}>
+            <Gallery
+                images={fileProps.files.map(_ => {
+                    return {
+                        src: getFilePath(router.asPath, _.path),
+                        height: _.imageHeight!,
+                        width: _.imageWidth!
+                    }
+                })}
+                rowHeight={360 * (galleryZoom / 50)}
+                enableImageSelection={false}
+                onClick={(idx) => setPreview({show: true, idx})}
+            />
+        </div>
     </>
 };
 

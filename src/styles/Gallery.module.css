@@ -32,3 +32,8 @@
 .noScroll {
     overflow: hidden;
 }
+
+.gridGalleryContainer {
+    height: min(100vh, 100%);
+    touch-action: pan-x pan-y
+}

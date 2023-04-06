@@ -25,7 +25,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     try {
         let buffer = await fs.promises.readFile(path);
-        res.writeHead(200, {'Content-Type': getContentType(path)});
+        res.writeHead(200, {'Content-Type': getContentType(path), 'Cache-Control': 'max-age=3600'});
         if (!fromLocal && buffer.length > 100_000) { // compress for non-local request and file > 1MB
             buffer = await imagemin.buffer(buffer, {plugins: [imageminMozjpeg({quality: 80})]});
         }
