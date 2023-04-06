@@ -76,8 +76,9 @@ interface PreviewProps {
     close: () => void
 }
 
+Modal.setAppElement("body")
 const GalleryPreview = (props: PreviewProps) => {
-    let [showThumbnails, setShowThumbnails] = useState(true);
+    let [showExtra, setShowExtra] = useState(true);
     let router = useRouter();
 
     return <>
@@ -99,8 +100,9 @@ const GalleryPreview = (props: PreviewProps) => {
                 startIndex={props.display.idx!}
                 slideInterval={2000}
                 showIndex={true}
-                showThumbnails={showThumbnails}
-                onScreenChange={fullScreen => setShowThumbnails(!fullScreen)}
+                showThumbnails={showExtra}
+                showNav={showExtra}
+                onScreenChange={fullScreen => setShowExtra(!fullScreen)}
                 onClick={props.close}
             />
         </Modal>
