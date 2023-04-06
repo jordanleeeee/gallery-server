@@ -34,6 +34,6 @@
 }
 
 .gridGalleryContainer {
-    height: min(100vh, 100%);
+    min-height: calc(100vh - 30px - 16px);
     touch-action: pan-x pan-y
 }
