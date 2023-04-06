@@ -23,12 +23,12 @@ export function getResourcesPath(parent: string, file: File): string {
 export function getFilePath(parent: string, fileName: string): string {
     let destination = '/api' + parent
     if (parent.length > 1) destination += '/'
-    destination += encode(fileName) + '/'
+    destination += encode(fileName)
     return destination
 }
 
 export function getDirectoryPath(parent: string, fileName: string): string {
-    let destination = '/' + parent
+    let destination = parent
     if (parent.length > 1) destination += '/'
     destination += encode(fileName) + '/'
     return destination

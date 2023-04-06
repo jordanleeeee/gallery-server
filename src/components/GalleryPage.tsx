@@ -5,7 +5,7 @@ import {useRouter} from "next/router";
 import Image from "next/image";
 import {FileProps} from "@/type/file";
 import {getFilePath} from "@/util/urlUtil";
-import Modal from 'react-modal';
+import Modal, {setAppElement} from 'react-modal';
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
 
@@ -76,10 +76,11 @@ interface PreviewProps {
     close: () => void
 }
 
-Modal.setAppElement("body")
 const GalleryPreview = (props: PreviewProps) => {
     let [showExtra, setShowExtra] = useState(true);
     let router = useRouter();
+
+    setAppElement("body")
 
     return <>
         <Modal isOpen={props.display.show}

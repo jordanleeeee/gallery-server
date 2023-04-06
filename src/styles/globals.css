@@ -18,3 +18,7 @@
 .ReactGridGallery_tile-description {
     background: rgb(238, 238, 238) !important;
 }
+
+html {
+    overflow-y: scroll;
+}
