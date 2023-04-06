@@ -46,28 +46,7 @@ const GalleryPage = (fileProps: FileProps) => {
     }
 
     return <>
-        <Modal isOpen={preview.show}
-               bodyOpenClassName={styles.noScroll}
-               style={{ // modal cover whole screen
-                   content: {position: 'inherit', inset: 0, padding: '8px', border: "none"},
-                   overlay: {zIndex: 2}
-               }}
-        >
-            <ImageGallery
-                items={fileProps.files.map(_ => {
-                    let imagePath = getFilePath(router.asPath, _.path);
-                    return {
-                        original: imagePath,
-                        thumbnail: imagePath,
-                    };
-                })}
-                startIndex={preview.idx}
-                slideInterval={2000}
-                showIndex={true}
-                onClick={() => setPreview({show: false})}
-            />
-        </Modal>
-
+        <GalleryPreview fileProps={fileProps} display={preview} close={() => setPreview({show: false})}/>
         <div className={styles.toolbar}>
             <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
             <input type="range" min={zoomMin} max={zoomMax} value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
@@ -91,4 +70,40 @@ const GalleryPage = (fileProps: FileProps) => {
     </>
 };
 
+interface PreviewProps {
+    fileProps: FileProps
+    display: { show: boolean, idx?: number }
+    close: () => void
+}
+
+const GalleryPreview = (props: PreviewProps) => {
+    let [showThumbnails, setShowThumbnails] = useState(true);
+    let router = useRouter();
+
+    return <>
+        <Modal isOpen={props.display.show}
+               bodyOpenClassName={styles.noScroll}
+               style={{ // modal cover whole screen
+                   content: {position: 'inherit', inset: 0, padding: '8px', border: "none"},
+                   overlay: {zIndex: 2}
+               }}
+        >
+            <ImageGallery
+                items={props.fileProps.files.map(_ => {
+                    let imagePath = getFilePath(router.asPath, _.path);
+                    return {
+                        original: imagePath,
+                        thumbnail: imagePath,
+                    };
+                })}
+                startIndex={props.display.idx!}
+                slideInterval={2000}
+                showIndex={true}
+                showThumbnails={showThumbnails}
+                onScreenChange={fullScreen => setShowThumbnails(!fullScreen)}
+                onClick={props.close}
+            />
+        </Modal>
+    </>
+}
 export default GalleryPage;
