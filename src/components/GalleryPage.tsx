@@ -104,7 +104,10 @@ const GalleryPreview = (props: PreviewProps) => {
                 showThumbnails={showExtra}
                 showNav={showExtra}
                 onScreenChange={fullScreen => setShowExtra(!fullScreen)}
-                onClick={props.close}
+                onClick={() => {
+                    setShowExtra(true)
+                    props.close()
+                }}
             />
         </Modal>
     </>
