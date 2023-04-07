@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,21 +19,40 @@ const dateTimeFormatOptions = {
 const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter()
 
+    useEffect(() => {
+        const onUnload = () => {
+            sessionStorage.setItem('scrollPosition', String(window.scrollY));
+        };
+        router.events.on('routeChangeStart', onUnload)
+
+        const scrollPositionString = sessionStorage.getItem('scrollPosition');
+        if (scrollPositionString) {
+            const scrollPosition = Number.parseInt(scrollPositionString)
+            setTimeout(() => {
+                window.scrollTo(0, scrollPosition);
+            }, 10);
+            sessionStorage.removeItem('scrollPosition');
+        }
+
+        return () => {
+            router.events.off('routeChangeStart', onUnload)
+        };
+    }, []);
+
     let galleryDirectors = fileProps.files
         .filter(_ => _.type === "imageDirectory")
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
+
     let fileAndDirectory = fileProps.files
         .filter(_ => _.type !== "imageDirectory")
         .sort((a, b) => b.lastModify.localeCompare(a.lastModify))
 
     function title() {
         const urlPart: string[] = decode((fileProps.rootPath + router.asPath)).split('/');
-
         let part = []
         for (let i = 0; i < urlPart.length; i++) {
             part.push(<div key={i}>{urlPart[i] + (i != urlPart.length - 1 ? '/' : '')}</div>)
         }
-
         return part
     }
 
@@ -46,19 +65,21 @@ const DirectoryPage = (fileProps: FileProps) => {
                 <LineBreak content={"Files"}/>
             }
 
-            {
-                router.asPath !== "/" &&
-                <div className={styles.fileEntry}>
-                    <Image src={"/folder.png"} alt={"back"} width={20} height={20}/>
-                    <Link href={router.asPath + "/.."}>../</Link>
-                </div>
-            }
+            <div className={styles.fileEntryContainer}>
+                {
+                    router.asPath !== "/" &&
+                    <div className={styles.fileEntry}>
+                        <Image src={"/folder.png"} alt={"back"} width={20} height={20}/>
+                        <Link href={router.asPath + "/.."}>../</Link>
+                    </div>
+                }
 
-            {
-                fileAndDirectory.map((_, idx) => (
-                    <FileAndDirectoryItem key={idx} parent={router.asPath} file={_}/>
-                ))
-            }
+                {
+                    fileAndDirectory.map((_, idx) => (
+                        <FileAndDirectoryItem key={idx} parent={router.asPath} file={_}/>
+                    ))
+                }
+            </div>
 
             {galleryDirectors.length > 0 && <LineBreak content={"Gallery"}/>}
 

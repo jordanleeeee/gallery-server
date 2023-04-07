@@ -44,6 +44,12 @@
     max-width: 18vw;
 }
 
+.fileEntryContainer {
+    overflow-x: scroll;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
 .fileEntry {
     display: flex;
     align-items: center;
@@ -55,6 +61,8 @@
     padding-right: 10px;
 }
 
-.fileEntry div {
+.fileEntry div,
+.fileEntry a {
     padding-right: 10px;
+    white-space: nowrap;
 }
