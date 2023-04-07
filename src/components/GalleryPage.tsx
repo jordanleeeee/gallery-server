@@ -95,7 +95,7 @@ const GalleryPreview = (props: PreviewProps) => {
                     let imagePath = getFilePath(router.asPath, _.path);
                     return {
                         original: imagePath,
-                        thumbnail: imagePath,
+                        thumbnail: imagePath
                     };
                 })}
                 startIndex={props.display.idx!}
