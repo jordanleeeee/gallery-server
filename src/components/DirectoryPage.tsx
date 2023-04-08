@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,19 +20,19 @@ const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter()
 
     useEffect(() => {
-        const onUnload = () => {
-            sessionStorage.setItem('scrollPosition', String(window.scrollY));
-        };
-        router.events.on('routeChangeStart', onUnload)
-
         const scrollPositionString = sessionStorage.getItem('scrollPosition');
         if (scrollPositionString) {
             const scrollPosition = Number.parseInt(scrollPositionString)
             setTimeout(() => {
                 window.scrollTo(0, scrollPosition);
-            }, 10);
+            }, 0);
             sessionStorage.removeItem('scrollPosition');
         }
+
+        const onUnload = () => {
+            sessionStorage.setItem('scrollPosition', String(window.scrollY));
+        };
+        router.events.on('routeChangeStart', onUnload)
 
         return () => {
             router.events.off('routeChangeStart', onUnload)
