@@ -2,12 +2,12 @@
     height: 86vh;
 }
 
-.image-gallery:fullscreen {
-    padding-top: 5%;
+.image-gallery-content.fullscreen .image-gallery-image {
+    height: 100vh;
 }
 
-.image-gallery:fullscreen .image-gallery-image {
-    height: 100vh;
+.image-gallery-content.fullscreen {
+    padding-top: 5%;
 }
 
 .image-gallery-thumbnail {

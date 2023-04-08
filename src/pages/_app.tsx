@@ -9,6 +9,7 @@ export default function MyApp({Component, pageProps}: AppProps) {
                 <title>Gallery</title>
                 <link rel="shortcut icon" href="/favicon.ico"/>
                 <meta name="google" content="notranslate"/>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
             </Head>
             <Component {...pageProps} />
         </>
