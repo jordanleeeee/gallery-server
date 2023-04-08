@@ -37,7 +37,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => {
             router.events.off('routeChangeStart', onUnload)
         };
-    }, []);
+    });
 
     let galleryDirectors = fileProps.files
         .filter(_ => _.type === "imageDirectory")
