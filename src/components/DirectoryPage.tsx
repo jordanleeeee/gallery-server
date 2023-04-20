@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import Image from "next/image";
@@ -19,13 +19,16 @@ const dateTimeFormatOptions = {
 const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter()
 
+    let [scrollPosition, setScrollPosition] = useState<null | number>(null)
+
     useEffect(() => {
-        const scrollPositionString = sessionStorage.getItem('scrollPosition');
-        if (scrollPositionString) {
-            const scrollPosition = Number.parseInt(scrollPositionString)
-            setTimeout(() => {
-                window.scrollTo(0, scrollPosition);
-            }, 0);
+        scrollPosition && window.scrollTo(0, scrollPosition);
+    }, [scrollPosition])
+
+    useEffect(() => {
+        const previousScrollPosition = sessionStorage.getItem('scrollPosition');
+        if (previousScrollPosition) {
+            setScrollPosition(Number.parseInt(previousScrollPosition));
             sessionStorage.removeItem('scrollPosition');
         }
 
@@ -37,7 +40,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => {
             router.events.off('routeChangeStart', onUnload)
         };
-    });
+    }, [router.events]);
 
     let galleryDirectors = fileProps.files
         .filter(_ => _.type === "imageDirectory")
