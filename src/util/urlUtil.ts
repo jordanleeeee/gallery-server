@@ -1,7 +1,7 @@
 import {File} from "@/type/file";
 
 export function getRootPath() {
-    return process.cwd()
+    return path.dirname(__filename)
 }
 
 export function encode(url: string): string {
