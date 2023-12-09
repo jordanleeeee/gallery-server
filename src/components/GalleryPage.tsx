@@ -48,7 +48,7 @@ const GalleryPage = (fileProps: FileProps) => {
     let removeGallery = async () => {
         let remove = confirm(`are you sure you want to remove ${decode(router.asPath)}`);
         if (remove) {
-            await fetch(`/api/delete/${router.asPath}`, {method: 'DELETE'})
+            await fetch(`/api/${router.asPath}`, {method: 'DELETE'})
             alert(`${decode(router.asPath)} removed`)
             router.back()
         }
