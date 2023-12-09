@@ -12,8 +12,8 @@ const logger = getLogger()
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.url === undefined || req.method !== 'GET') {
         logger.info("on request", {method: req.method, path: undefined, ip: req.socket.remoteAddress})
-        res.status(404);
-        res.end(`path not found`);
+        res.status(400);
+        res.end(`invalid call`);
         return
     }
 

@@ -8,8 +8,9 @@ export interface File {
     type: "file" | "directory" | "imageDirectory"
     contentType?: string    // for file only
     icon?: string           // for imageDirectory only
-    imageWidth?: number     // if it is a image
-    imageHeight?: number    // if it is a image
+    imageCount?: number      // for imageDirectory only
+    imageWidth?: number     // if it is an image / imageDirectory
+    imageHeight?: number    // if it is an image / imageDirectory
     lastModify: string
 }
 

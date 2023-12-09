@@ -4,7 +4,7 @@ import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
 import Image from "next/image";
 import {FileProps} from "@/type/file";
-import {getFilePath} from "@/util/urlUtil";
+import {decode, getFilePath} from "@/util/urlUtil";
 import Modal, {setAppElement} from 'react-modal';
 import styles from "../styles/Gallery.module.css";
 import "react-image-gallery/styles/css/image-gallery.css";
@@ -45,11 +45,21 @@ const GalleryPage = (fileProps: FileProps) => {
         else setGalleryZoom(targetZoom)
     }
 
+    let removeGallery = async () => {
+        let remove = confirm(`are you sure you want to remove ${decode(router.asPath)}`);
+        if (remove) {
+            await fetch(`/api/delete/${router.asPath}`, {method: 'DELETE'})
+            alert(`${decode(router.asPath)} removed`)
+            router.back()
+        }
+    }
+
     return <>
         <GalleryPreview fileProps={fileProps} display={preview} close={() => setPreview({show: false})}/>
         <div className={styles.toolbar}>
             <Image src={"/back.png"} alt={"back"} width={18} height={18} onClick={() => router.back()}/>
             <input type="range" min={zoomMin} max={zoomMax} value={galleryZoom} id="zoom-range" onInput={zoomGallery}/>
+            <Image src={"/bin.png"} alt={"back"} width={18} height={18} onClick={removeGallery}/>
         </div>
 
         <div className={styles.top}></div>

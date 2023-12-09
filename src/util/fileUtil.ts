@@ -2,6 +2,8 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {File} from "@/type/file";
 import sizeOf from 'image-size';
+import trash from 'trash'
+import * as os from "os";
 
 export function getContentType(filePath: string): string {
     const extension = path.extname(filePath);
@@ -86,6 +88,7 @@ export function getContentInDirectory(path: string): File[] {
             if (innerContent.length !== 0 && !innerContent.some(_ => !isImage(getContentType(_)))) {
                 file.type = "imageDirectory"
                 file.icon = item + "/" + innerContent[0]
+                file.imageCount = innerContent.length
 
                 let imageSize = sizeOf(path + '/' + file.icon);
                 file.imageWidth = imageSize.width
@@ -95,4 +98,10 @@ export function getContentInDirectory(path: string): File[] {
         files.push(file)
     }
     return files
+}
+
+export async function removeFileOrDirectory(path: string): Promise<void> {
+    if (os.platform() === 'darwin') {
+        return trash(path);
+    }
 }
