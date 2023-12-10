@@ -101,7 +101,7 @@ export function getContentInDirectory(path: string): File[] {
 }
 
 export async function removeFileOrDirectory(path: string): Promise<void> {
-    if (os.platform() === 'darwin') {
+    if (os.platform() === 'darwin' || os.platform() === 'win32') {
         return trash(path);
     }
 }
