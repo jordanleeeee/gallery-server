@@ -1,4 +1,4 @@
-import {ChangeEvent, TouchEventHandler, useState} from "react";
+import {ChangeEvent, TouchEventHandler, useEffect, useState} from "react";
 import ImageGallery from "react-image-gallery";
 import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
@@ -22,7 +22,15 @@ const GalleryPage = (fileProps: FileProps) => {
     const zoomGallery = (event: ChangeEvent<HTMLInputElement>) => {
         const zoomValue = event.target.value;
         setGalleryZoom(parseInt(zoomValue));
+        window.localStorage.setItem("zoomLevel", zoomValue)
     };
+
+    useEffect(() => {
+        const zoomLevel = window.localStorage.getItem("zoomLevel");
+        if (zoomLevel !== null) {
+            setGalleryZoom(parseInt(zoomLevel))
+        }
+    }, []);
 
     const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {
         let touch1 = event.touches[0]
