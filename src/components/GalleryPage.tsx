@@ -22,7 +22,6 @@ const GalleryPage = (fileProps: FileProps) => {
     const zoomGallery = (event: ChangeEvent<HTMLInputElement>) => {
         const zoomValue = event.target.value;
         setGalleryZoom(parseInt(zoomValue));
-        window.localStorage.setItem("zoomLevel", zoomValue)
     };
 
     useEffect(() => {
@@ -31,6 +30,10 @@ const GalleryPage = (fileProps: FileProps) => {
             setGalleryZoom(parseInt(zoomLevel))
         }
     }, []);
+
+    useEffect(() => {
+        window.localStorage.setItem("zoomLevel", String(galleryZoom))
+    }, [galleryZoom]);
 
     const onTouchStart: TouchEventHandler<HTMLDivElement> = (event) => {
         let touch1 = event.touches[0]
