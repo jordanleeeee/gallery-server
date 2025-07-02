@@ -99,31 +99,52 @@ const GalleryPage = (fileProps: FileProps) => {
         try {
             const zip = new JSZip();
             let successCount = 0;
+            let parallel = false
             // Add all images to ZIP file
+            if (parallel) {
+                const fetchPromises = fileProps.files.map(async (file) => {
+                    const imageUrl = getFilePath(router.asPath, file.path) + "?compress=false";
 
-            const fetchPromises = fileProps.files.map(async (file) => {
-                const imageUrl = getFilePath(router.asPath, file.path) + "?compress=false";
+                    try {
+                        const response = await fetch(imageUrl);
+                        if (!response.ok) throw new Error(`Failed to fetch ${file.path}`);
 
-                try {
-                    const response = await fetch(imageUrl);
-                    if (!response.ok) throw new Error(`Failed to fetch ${file.path}`);
+                        const blob = await response.blob();
+                        return {file, blob, success: true};
+                    } catch (error) {
+                        console.error(`Failed to fetch ${file.path}:`, error);
+                        return {file, blob: null, success: false};
+                    }
+                });
 
-                    const blob = await response.blob();
-                    return {file, blob, success: true};
-                } catch (error) {
-                    console.error(`Failed to fetch ${file.path}:`, error);
-                    return {file, blob: null, success: false};
+                // Wait for all fetch operations to complete
+                const results = await Promise.allSettled(fetchPromises);
+
+                // Process results and add successful ones to ZIP
+                for (const result of results) {
+                    if (result.status === 'fulfilled' && result.value.success && result.value.blob) {
+                        zip.file(result.value.file.path, result.value.blob);
+                        successCount++;
+                    }
                 }
-            });
+            } else {
+                for (let i = 0; i < fileProps.files.length; i++) {
+                    const file = fileProps.files[i];
+                    const imageUrl = getFilePath(router.asPath, file.path) + "?compress=false";
 
-            // Wait for all fetch operations to complete
-            const results = await Promise.allSettled(fetchPromises);
+                    try {
+                        // Fetch the image as blob
+                        const response = await fetch(imageUrl);
+                        if (!response.ok) throw new Error(`Failed to fetch ${file.path}`);
 
-            // Process results and add successful ones to ZIP
-            for (const result of results) {
-                if (result.status === 'fulfilled' && result.value.success && result.value.blob) {
-                    zip.file(result.value.file.path, result.value.blob);
-                    successCount++;
+                        const blob = await response.blob();
+
+                        // Add image to ZIP
+                        zip.file(file.path, blob);
+                        successCount++;
+                    } catch (error) {
+                        console.error(`Failed to fetch ${file.path}:`, error);
+                    }
                 }
             }
 
