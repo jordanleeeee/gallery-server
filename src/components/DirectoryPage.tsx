@@ -28,7 +28,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
     useEffect(() => {
         if (!isClient) return;
-        
+
         if (scrollPosition) {
             window.scrollTo(0, scrollPosition);
         }
@@ -60,14 +60,9 @@ const DirectoryPage = (fileProps: FileProps) => {
         const urlPart: string[] = decode(fileProps.rootPath + router.asPath)
             .split("/")
             .filter(part => part !== "");
-        
+
         return urlPart.map((part, index) => (
-            <Typography 
-                key={index} 
-                color="text.primary" 
-                sx={{fontSize: "1.1rem"}}
-                component="span"
-            >
+            <Typography key={index} color="text.primary" sx={{fontSize: "1.1rem"}} component="span">
                 {part}
             </Typography>
         ));

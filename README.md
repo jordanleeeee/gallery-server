@@ -3,6 +3,7 @@
 a simple nice look image viewer for local image
 
 ## build and run
+
 ```bash
 git clone git@github.com:jordanleeeee/gallery-server.git
 cd gallery-server

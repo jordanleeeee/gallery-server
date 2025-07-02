@@ -1,12 +1,11 @@
-import { ChangeEvent, TouchEventHandler, useEffect, useState } from "react";
+import {ChangeEvent, TouchEventHandler, useEffect, useState} from "react";
 import ImageGallery from "react-image-gallery";
-import { Gallery } from "react-grid-gallery";
-import { useRouter } from "next/router";
+import {Gallery} from "react-grid-gallery";
+import {useRouter} from "next/router";
 import Image from "next/image";
-import { FileProps } from "@/type/file";
-import { decode, getFilePath } from "@/util/urlUtil";
-import Modal, { setAppElement } from "react-modal";
-import JSZip from "jszip";
+import {FileProps} from "@/type/file";
+import {decode, getFilePath} from "@/util/urlUtil";
+import Modal, {setAppElement} from "react-modal";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {
     AppBar,
@@ -24,9 +23,9 @@ import {
     Typography,
     Container,
     Paper,
-    CircularProgress
+    CircularProgress,
 } from "@mui/material";
-import { ArrowBack, ZoomIn, Delete, Download, Close, FileDownload, DeleteForever } from "@mui/icons-material";
+import {ArrowBack, ZoomIn, Delete, Download, Close, FileDownload, DeleteForever} from "@mui/icons-material";
 
 let diffStart: number;
 let zoomStart: number;
@@ -35,10 +34,11 @@ const zoomMax: number = 180;
 
 const GalleryPage = (fileProps: FileProps) => {
     const [galleryZoom, setGalleryZoom] = useState(50);
-    const [preview, setPreview] = useState<{ show: boolean; idx?: number }>({ show: false });
+    const [preview, setPreview] = useState<{show: boolean; idx?: number}>({show: false});
     const [isMobile, setIsMobile] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+    const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
 
     const [isClient, setIsClient] = useState(false);
     const router = useRouter();
@@ -115,84 +115,68 @@ const GalleryPage = (fileProps: FileProps) => {
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
         try {
-            await fetch(`/api/${router.asPath}`, { method: "DELETE" });
+            await fetch(`/api/${router.asPath}`, {method: "DELETE"});
             router.back();
         } catch (error) {
             console.error("Delete failed:", error);
         }
     };
 
-    const downloadGallery = async () => {
+    const handleDownloadClick = () => {
+        setDownloadDialogOpen(true);
+    };
+
+    const downloadGallery = () => {
         if (isDownloading) return;
 
+        setDownloadDialogOpen(false);
         setIsDownloading(true);
 
-        // Create directory name from the current path
-        const currentPath = decode(router.asPath);
-        const directoryName = currentPath === "/" ? fileProps.rootPath.split("/").pop() : currentPath.split("/").pop();
-
         try {
-            const zip = new JSZip();
-            let successCount = 0;
+            // Create download URL for server-side zip generation
+            const zipUrl = `/api${router.asPath}?download=zip`;
 
-            for (let i = 0; i < fileProps.files.length; i++) {
-                const file = fileProps.files[i];
-                const imageUrl = getFilePath(router.asPath, file.path) + "?compress=false";
-
-                try {
-                    const response = await fetch(imageUrl);
-                    if (!response.ok) throw new Error(`Failed to fetch ${file.path}`);
-
-                    const blob = await response.blob();
-                    zip.file(file.path, blob);
-                    successCount++;
-                } catch (error) {
-                    console.error(`Failed to fetch ${file.path}:`, error);
-                }
-            }
-
-            if (successCount === 0) {
-                return;
-            }
-
-            const zipBlob = await zip.generateAsync({ type: "blob" });
-            const url = window.URL.createObjectURL(zipBlob);
+            // Create a temporary link element and trigger download
+            // This allows the browser to start the download immediately
+            // as the server streams the zip content
             const link = document.createElement("a");
-            link.href = url;
-            link.download = `${directoryName}.zip`;
+            link.href = zipUrl;
+            link.style.display = "none";
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            window.URL.revokeObjectURL(url);
+
+            // Reset downloading state after a short delay
+            // since we can't track the actual download completion
+            setTimeout(() => {
+                setIsDownloading(false);
+            }, 2000);
         } catch (error) {
             console.error("Download error:", error);
-        } finally {
             setIsDownloading(false);
         }
     };
 
-
-
     // Show loading state until client-side hydration is complete
     if (!isClient) {
         return (
-            <Box sx={{ flexGrow: 1, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            <Box sx={{flexGrow: 1, minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center"}}>
                 <CircularProgress />
             </Box>
         );
     }
 
     return (
-        <Box sx={{ flexGrow: 1, minHeight: "100vh" }}>
-            <GalleryPreview fileProps={fileProps} display={preview} close={() => setPreview({ show: false })} />
+        <Box sx={{flexGrow: 1, minHeight: "100vh"}}>
+            <GalleryPreview fileProps={fileProps} display={preview} close={() => setPreview({show: false})} />
 
-            <AppBar position="fixed" sx={{ zIndex: theme => theme.zIndex.drawer + 1 }}>
+            <AppBar position="fixed" sx={{zIndex: theme => theme.zIndex.drawer + 1}}>
                 <Toolbar variant="dense">
-                    <IconButton edge="start" color="inherit" onClick={() => router.back()} sx={{ mr: 2 }}>
+                    <IconButton edge="start" color="inherit" onClick={() => router.back()} sx={{mr: 2}}>
                         <ArrowBack />
                     </IconButton>
 
-                    <ZoomIn sx={{ mr: 1 }} />
+                    <ZoomIn sx={{mr: 1}} />
                     <Slider
                         value={galleryZoom}
                         onChange={zoomGallery}
@@ -213,20 +197,19 @@ const GalleryPage = (fileProps: FileProps) => {
                             },
                         }}
                     />
-
-                    {isMobile && (
-                        <IconButton color="inherit" onClick={downloadGallery} disabled={isDownloading} sx={{ mr: 1 }}>
-                            <Download />
-                        </IconButton>
-                    )}
                     <IconButton color="inherit" onClick={() => setDeleteDialogOpen(true)}>
                         <Delete />
                     </IconButton>
+                    {isMobile && (
+                        <IconButton color="inherit" onClick={handleDownloadClick} disabled={isDownloading} sx={{mr: 1}}>
+                            <Download />
+                        </IconButton>
+                    )}
                 </Toolbar>
                 {isDownloading && <LinearProgress color="secondary" />}
             </AppBar>
 
-            <Container maxWidth={false} sx={{ mt: 8, px: 0.25 }}>
+            <Container maxWidth={false} sx={{mt: 8, px: 0.25}}>
                 <div
                     style={{
                         position: "relative",
@@ -253,7 +236,7 @@ const GalleryPage = (fileProps: FileProps) => {
                                 };
                             })}
                             rowHeight={360 * (galleryZoom / 50)}
-                            onClick={idx => setPreview({ show: true, idx })}
+                            onClick={idx => setPreview({show: true, idx})}
                             enableImageSelection={false}
                         />
                     </Paper>
@@ -262,8 +245,8 @@ const GalleryPage = (fileProps: FileProps) => {
 
             {/* Delete Confirmation Dialog */}
             <Dialog open={deleteDialogOpen} onClose={() => setDeleteDialogOpen(false)}>
-                <DialogTitle sx={{ display: "flex", alignItems: "center" }}>
-                    <DeleteForever sx={{ mr: 1, color: "error.main" }} />
+                <DialogTitle sx={{display: "flex", alignItems: "center"}}>
+                    <DeleteForever sx={{mr: 1, color: "error.main"}} />
                     Delete Gallery
                 </DialogTitle>
                 <DialogContent>
@@ -276,13 +259,32 @@ const GalleryPage = (fileProps: FileProps) => {
                     </Button>
                 </DialogActions>
             </Dialog>
+
+            {/* Download Confirmation Dialog */}
+            <Dialog open={downloadDialogOpen} onClose={() => setDownloadDialogOpen(false)}>
+                <DialogTitle sx={{display: "flex", alignItems: "center"}}>
+                    <FileDownload sx={{mr: 1, color: "primary.main"}} />
+                    Download Gallery
+                </DialogTitle>
+                <DialogContent>
+                    <DialogContentText>
+                        Download all {fileProps.files.length} images from &quot;{decode(router.asPath)}&quot; as a ZIP file?
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={() => setDownloadDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={downloadGallery} color="primary" variant="contained" startIcon={<FileDownload />}>
+                        Download
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };
 
 interface PreviewProps {
     fileProps: FileProps;
-    display: { show: boolean; idx?: number };
+    display: {show: boolean; idx?: number};
     close: () => void;
 }
 
@@ -307,7 +309,7 @@ const GalleryPreview = (props: PreviewProps) => {
                 },
             }}
         >
-            <Box sx={{ position: "relative", height: "100%", bgcolor: "black" }}>
+            <Box sx={{position: "relative", height: "100%", bgcolor: "black"}}>
                 {props.display.idx !== undefined && (
                     <ImageGallery
                         items={props.fileProps.files.map(_ => {
