@@ -13,14 +13,16 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let decodedUrl = decode(req.url!)
     logger.info("on request", {method: req.method, path: decodedUrl, ip: req.socket.remoteAddress})
 
-    let path = getRootPath() + decodedUrl.substring(4, decodedUrl.length);
+    let path = getRootPath() + decodedUrl.substring(4, decodedUrl.length).split("?")[0];
     if (req.method === "GET") {
         const fromLocal = req.headers.host!.includes('localhost') || req.headers.host!.includes('127.0.0.1')
+        const shouldCompress = req.query.compress !== 'false'
 
         try {
             let buffer = await fs.promises.readFile(path);
             res.writeHead(200, {'Content-Type': getContentType(path), 'Cache-Control': 'max-age=3600'});
-            if (!fromLocal && buffer.length > 100_000) { // compress for non-local request and file > 1MB
+            // compress for non-local request and file > 1MB, unless compress=false
+            if (!fromLocal && buffer.length > 100_000 && shouldCompress) {
                 buffer = await imagemin.buffer(buffer, {plugins: [imageminMozjpeg({quality: 80})]});
             }
             res.end(buffer)
