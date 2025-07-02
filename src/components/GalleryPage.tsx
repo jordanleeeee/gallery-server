@@ -1,11 +1,9 @@
-import {ChangeEvent, TouchEventHandler, useEffect, useState} from "react";
+import {TouchEventHandler, useEffect, useState} from "react";
 import ImageGallery from "react-image-gallery";
 import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
-import Image from "next/image";
 import {FileProps} from "@/type/file";
 import {decode, getFilePath} from "@/util/urlUtil";
-import Modal, {setAppElement} from "react-modal";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {
     AppBar,
@@ -20,12 +18,11 @@ import {
     Button,
     Box,
     LinearProgress,
-    Typography,
     Container,
     Paper,
     CircularProgress,
 } from "@mui/material";
-import {ArrowBack, ZoomIn, Delete, Download, Close, FileDownload, DeleteForever} from "@mui/icons-material";
+import {ArrowBack, ZoomIn, Delete, Download, FileDownload, DeleteForever} from "@mui/icons-material";
 
 let diffStart: number;
 let zoomStart: number;

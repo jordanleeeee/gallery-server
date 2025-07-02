@@ -4,8 +4,8 @@ import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import {useRouter} from "next/router";
 import {Gallery} from "react-grid-gallery";
-import {Container, Typography, Breadcrumbs, Card, CardContent, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Divider, Box, Grid, Chip, Paper, Avatar} from "@mui/material";
-import {Folder, InsertDriveFile, ArrowBack, Image as ImageIcon, PhotoLibrary} from "@mui/icons-material";
+import {Container, Typography, Breadcrumbs, Card, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Divider, Box, Chip, Paper, Avatar} from "@mui/material";
+import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary} from "@mui/icons-material";
 
 const dateTimeFormatOptions = {
     day: "2-digit",
