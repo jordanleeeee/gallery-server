@@ -8,10 +8,10 @@ const nextConfig = {
     
     // Build performance optimizations
     swcMinify: true,
-    experimental: {
-        // Enable faster builds with turbopack in dev mode
-        turbo: {},
-    },
+    // experimental: {
+    //     // Enable faster builds with turbopack in dev mode
+    //     turbo: {},
+    // },
     
     // Compiler optimizations
     compiler: {
