@@ -109,6 +109,34 @@ const GalleryPage = (fileProps: FileProps) => {
         setGalleryZoom(Math.round(targetZoom));
     };
 
+    // Global wheel event handler for trackpad zoom
+    useEffect(() => {
+        if (!isClient) return;
+
+        const handleWheel = (event: WheelEvent) => {
+            // Only handle pinch gestures on trackpad (Ctrl key + wheel)
+            if (!event.ctrlKey) return;
+
+            event.preventDefault(); // Prevent browser zoom only when over gallery
+            event.stopPropagation(); // Stop event bubbling
+
+            const delta = event.deltaY;
+            const scaleFactor = -delta / 2; // Reduced sensitivity
+            let targetZoom = galleryZoom + scaleFactor;
+
+            if (targetZoom >= zoomMax) targetZoom = zoomMax;
+            else if (targetZoom <= zoomMin) targetZoom = zoomMin;
+
+            setGalleryZoom(Math.round(targetZoom));
+        };
+
+        window.addEventListener("wheel", handleWheel, {passive: false});
+
+        return () => {
+            window.removeEventListener("wheel", handleWheel);
+        };
+    }, [isClient, galleryZoom]);
+
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
         try {
