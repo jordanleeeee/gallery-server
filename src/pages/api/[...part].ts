@@ -34,7 +34,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
                 buffer = await imagemin.buffer(buffer, {plugins: [imageminMozjpeg({quality: 80})]});
             }
             res.end(buffer);
-        } catch (e) {
+        } catch {
             logger.error(`file not found: ${decodedUrl}`);
             res.status(404);
             res.end();
@@ -113,7 +113,7 @@ async function handleZipDownload(req: NextApiRequest, res: NextApiResponse, requ
                 // Check if file still exists
                 await fs.promises.access(filePath);
                 archive.file(filePath, {name: file.path});
-            } catch (error) {
+            } catch {
                 logger.warn(`Skipping missing file: ${file.path}`);
             }
         }
