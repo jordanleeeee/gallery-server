@@ -338,9 +338,10 @@ const GalleryPreview = (props: PreviewProps) => {
                 {props.display.idx !== undefined && (
                     <ImageGallery
                         items={props.fileProps.files.map(_ => {
+                            let path = getFilePath(router.asPath, _.path)
                             return {
-                                original: getFilePath(router.asPath, _.path),
-                                thumbnail: getFilePath(router.asPath, _.path),
+                                original: path,
+                                thumbnail: path,
                             };
                         })}
                         startIndex={props.display.idx}

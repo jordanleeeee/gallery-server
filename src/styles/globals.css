@@ -25,7 +25,9 @@
     width: min-content;
     border-radius: 8px !important;
     overflow: hidden;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    transition:
+        transform 0.2s ease-in-out,
+        box-shadow 0.2s ease-in-out;
 }
 
 .ReactGridGallery_tile:hover {
