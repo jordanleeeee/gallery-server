@@ -32,6 +32,8 @@ const GalleryPage = (fileProps: FileProps) => {
     const [isDownloading, setIsDownloading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+    const [visibleImageCount, setVisibleImageCount] = useState(10);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
     const theme = useTheme();
 
     const [isClient, setIsClient] = useState(false);
@@ -46,6 +48,45 @@ const GalleryPage = (fileProps: FileProps) => {
         setIsClient(true);
         sessionStorage.setItem("restore", "true");
     }, []);
+
+    useEffect(() => {
+        if (isMobile) {
+            setVisibleImageCount(10);
+        } else {
+            setVisibleImageCount(fileProps.files.length);
+        }
+    }, [isMobile, fileProps.files.length]);
+
+    // Add scroll event listener for mobile lazy loading
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const handleScroll = () => {
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const scrollHeight = document.documentElement.scrollHeight;
+            const clientHeight = window.innerHeight;
+            
+            // Check if user has scrolled to bottom (with 100px threshold)
+            if (scrollTop + clientHeight >= scrollHeight - 200) {
+                loadMoreImages();
+            }
+        };
+
+        const loadMoreImages = () => {
+            if (isLoadingMore || visibleImageCount >= fileProps.files.length) return;
+            
+            setIsLoadingMore(true);
+            
+            // Simulate loading delay for better UX
+            setTimeout(() => {
+                setVisibleImageCount(prev => Math.min(prev + 10, fileProps.files.length));
+                setIsLoadingMore(false);
+            }, 500);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [isMobile, isLoadingMore, visibleImageCount, fileProps.files.length]);
 
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
@@ -90,6 +131,14 @@ const GalleryPage = (fileProps: FileProps) => {
             console.error("Download error:", error);
             setIsDownloading(false);
         }
+    };
+
+    // Get images to display based on device type and lazy loading state
+    const getDisplayImages = () => {
+        if (!isMobile) {
+            return fileProps.files;
+        }
+        return fileProps.files.slice(0, visibleImageCount);
     };
 
     // Show loading state until client-side hydration is complete
@@ -163,7 +212,7 @@ const GalleryPage = (fileProps: FileProps) => {
                         }}
                     >
                         <Gallery
-                            images={fileProps.files.map(_ => {
+                            images={getDisplayImages().map(_ => {
                                 return {
                                     src: getFilePath(router.asPath, _.path),
                                     height: _.imageHeight!,
@@ -174,6 +223,13 @@ const GalleryPage = (fileProps: FileProps) => {
                             onClick={idx => setPreview({show: true, idx})}
                             enableImageSelection={false}
                         />
+                        
+                        {/* Loading indicator for mobile when loading more images */}
+                        {isMobile && isLoadingMore && (
+                            <Box sx={{display: "flex", justifyContent: "center", py: 3}}>
+                                <CircularProgress size={24} />
+                            </Box>
+                        )}
                     </Paper>
                 </div>
             </Container>
