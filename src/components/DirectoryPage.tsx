@@ -4,7 +4,25 @@ import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import {useRouter} from "next/router";
 import {Gallery} from "react-grid-gallery";
-import {Container, Typography, Breadcrumbs, Card, List, ListItem, ListItemIcon, ListItemText, ListItemButton, Divider, Box, Chip, Paper, Avatar} from "@mui/material";
+import {
+    Container,
+    Typography,
+    Breadcrumbs,
+    Card,
+    List,
+    ListItem,
+    ListItemIcon,
+    ListItemText,
+    ListItemButton,
+    Divider,
+    Box,
+    Chip,
+    Paper,
+    Avatar,
+    CircularProgress,
+    useMediaQuery,
+    useTheme,
+} from "@mui/material";
 import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary} from "@mui/icons-material";
 
 const dateTimeFormatOptions = {
@@ -18,8 +36,21 @@ const dateTimeFormatOptions = {
 
 const DirectoryPage = (fileProps: FileProps) => {
     const router = useRouter();
-    const [scrollPosition, setScrollPosition] = useState<null | number>(null);
     const [isClient, setIsClient] = useState(false);
+    const theme = useTheme();
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
+    // Responsive page size
+    const GALLERIES_PER_PAGE = isMobile ? 10 : 30;
+
+    // Pagination state for galleries
+    const [currentPage, setCurrentPage] = useState(1);
+    const [isLoadingMore, setIsLoadingMore] = useState(false);
+    const [displayedGalleries, setDisplayedGalleries] = useState<File[]>([]);
+
+    // Filter and sort files
+    const galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
+    const fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
 
     // Handle client-side hydration
     useEffect(() => {
@@ -27,34 +58,118 @@ const DirectoryPage = (fileProps: FileProps) => {
     }, []);
 
     useEffect(() => {
-        if (!isClient) return;
-
-        if (scrollPosition) {
-            window.scrollTo(0, scrollPosition);
-        }
-    }, [scrollPosition, isClient]);
+        // clear display gallery when page change
+        setDisplayedGalleries([]);
+        setCurrentPage(1);
+    }, [router.asPath]);
 
     useEffect(() => {
         if (!isClient) return;
 
         const previousScrollPosition = sessionStorage.getItem("scrollPosition");
-        if (previousScrollPosition) {
-            setScrollPosition(Number.parseInt(previousScrollPosition));
+        const previousGalleryCount = sessionStorage.getItem("galleryCount");
+        const restore = sessionStorage.getItem("restore");
+
+        if (restore && previousScrollPosition && previousGalleryCount) {
+            const targetGalleryCount = Number.parseInt(previousGalleryCount);
+            const targetScrollPosition = Number.parseInt(previousScrollPosition);
+
+            // Load the same number of galleries that were previously loaded
+            if (galleryDirectors.length > 0) {
+                const galleriesNeeded = Math.min(targetGalleryCount, galleryDirectors.length);
+                setDisplayedGalleries(galleryDirectors.slice(0, galleriesNeeded));
+                setCurrentPage(Math.ceil(galleriesNeeded / GALLERIES_PER_PAGE));
+            }
+
+            // Restore scroll position after galleries are loaded
+            setTimeout(() => {
+                window.scrollTo(0, targetScrollPosition);
+                sessionStorage.removeItem("scrollPosition");
+                sessionStorage.removeItem("galleryCount");
+                sessionStorage.removeItem("restore");
+            }, 100);
+        } else {
+            // clear restore record if isn't restored
             sessionStorage.removeItem("scrollPosition");
+            sessionStorage.removeItem("galleryCount");
+            sessionStorage.removeItem("restore");
         }
 
         const onUnload = () => {
             sessionStorage.setItem("scrollPosition", String(window.scrollY));
+            sessionStorage.setItem("galleryCount", String(displayedGalleries.length));
         };
+
         router.events.on("routeChangeStart", onUnload);
 
         return () => {
             router.events.off("routeChangeStart", onUnload);
         };
-    }, [router.events, isClient]);
+    }, [router.events, isClient, galleryDirectors.length, displayedGalleries.length, GALLERIES_PER_PAGE]);
 
-    const galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
-    const fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
+    // Initialize displayed galleries on first load (only if not restoring)
+    useEffect(() => {
+        if (galleryDirectors.length > 0) {
+            const restore = sessionStorage.getItem("restore");
+            if (!restore) {
+                setDisplayedGalleries(galleryDirectors.slice(0, GALLERIES_PER_PAGE));
+                setCurrentPage(1);
+            } else {
+            }
+        }
+    }, [galleryDirectors.length]);
+
+    // Handle responsive page size changes
+    useEffect(() => {
+        if (!isClient || displayedGalleries.length === 0) return;
+
+        // If screen size changed, adjust the current page calculation
+        const newCurrentPage = Math.ceil(displayedGalleries.length / GALLERIES_PER_PAGE);
+        if (newCurrentPage !== currentPage) {
+            setCurrentPage(newCurrentPage);
+        }
+    }, [GALLERIES_PER_PAGE, isClient, displayedGalleries.length, currentPage]);
+
+    // Scroll event listener for infinite scroll
+    useEffect(() => {
+        if (!isClient) return;
+
+        const handleScroll = () => {
+            const scrollTop = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const docHeight = document.documentElement.scrollHeight;
+
+            // Check if user is near the bottom (within 200px)
+            if (scrollTop + windowHeight >= docHeight - 200) {
+                loadMoreGalleries();
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [isClient, currentPage, isLoadingMore, displayedGalleries.length, galleryDirectors.length]);
+
+    // Load more galleries function
+    const loadMoreGalleries = () => {
+        if (isLoadingMore || displayedGalleries.length >= galleryDirectors.length) return;
+
+        setIsLoadingMore(true);
+
+        // Simulate loading delay for better UX
+        setTimeout(
+            () => {
+                const nextPage = currentPage + 1;
+                const startIndex = (nextPage - 1) * GALLERIES_PER_PAGE;
+                const endIndex = startIndex + GALLERIES_PER_PAGE;
+                const newGalleries = galleryDirectors.slice(startIndex, endIndex);
+
+                setDisplayedGalleries(prev => [...prev, ...newGalleries]);
+                setCurrentPage(nextPage);
+                setIsLoadingMore(false);
+            },
+            isMobile ? 10 : 500
+        );
+    };
 
     function buildBreadcrumbs() {
         const urlPart: string[] = decode(fileProps.rootPath + router.asPath)
@@ -131,7 +246,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
                     <Paper sx={{px: 0.25, py: 2, bgcolor: "background.paper"}}>
                         <Gallery
-                            images={galleryDirectors.map(_ => {
+                            images={displayedGalleries.map(_ => {
                                 return {
                                     src: getFilePath(router.asPath, _.icon!),
                                     height: _.imageHeight!,
@@ -140,9 +255,26 @@ const DirectoryPage = (fileProps: FileProps) => {
                                 };
                             })}
                             rowHeight={288}
-                            onClick={idx => router.push(getDirectoryPath(router.asPath, galleryDirectors[idx].path)).then()}
+                            onClick={idx => router.push(getDirectoryPath(router.asPath, displayedGalleries[idx].path)).then()}
                             enableImageSelection={false}
                         />
+
+                        {isLoadingMore && (
+                            <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                                <CircularProgress size={24} />
+                                <Typography variant="body2" sx={{ml: 1, alignSelf: "center"}}>
+                                    Loading more galleries...
+                                </Typography>
+                            </Box>
+                        )}
+
+                        {displayedGalleries.length >= galleryDirectors.length && galleryDirectors.length > GALLERIES_PER_PAGE && (
+                            <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                                <Typography variant="body2" color="text.secondary">
+                                    All galleries loaded
+                                </Typography>
+                            </Box>
+                        )}
                     </Paper>
                 </Box>
             )}

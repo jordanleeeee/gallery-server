@@ -21,6 +21,8 @@ import {
     Container,
     Paper,
     CircularProgress,
+    useMediaQuery,
+    useTheme,
 } from "@mui/material";
 import {ArrowBack, ZoomIn, Delete, Download, FileDownload, DeleteForever} from "@mui/icons-material";
 
@@ -32,35 +34,24 @@ const zoomMax: number = 180;
 const GalleryPage = (fileProps: FileProps) => {
     const [galleryZoom, setGalleryZoom] = useState(50);
     const [preview, setPreview] = useState<{show: boolean; idx?: number}>({show: false});
-    const [isMobile, setIsMobile] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
     const [downloadDialogOpen, setDownloadDialogOpen] = useState(false);
+    const theme = useTheme();
 
     const [isClient, setIsClient] = useState(false);
+    const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useRouter();
 
     // Handle client-side hydration
     useEffect(() => {
         setIsClient(true);
+        sessionStorage.setItem("restore", "true");
     }, []);
 
     const zoomGallery = (event: Event, newValue: number | number[]) => {
         setGalleryZoom(newValue as number);
     };
-
-    // Detect mobile device - only on client side
-    useEffect(() => {
-        if (!isClient) return;
-
-        const checkIsMobile = () => {
-            const userAgent = navigator.userAgent || navigator.vendor;
-            const isMobileDevice = /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent.toLowerCase());
-            setIsMobile(isMobileDevice);
-        };
-
-        checkIsMobile();
-    }, [isClient]);
 
     // Load zoom level from localStorage - only on client side
     useEffect(() => {
@@ -327,8 +318,8 @@ const GalleryPreview = (props: PreviewProps) => {
                 "& .MuiDialog-paper": {
                     height: "100vh",
                     maxHeight: "100vh",
-                    width: "90vw",
-                    maxWidth: "90vw",
+                    width: "95vw",
+                    maxWidth: "95vw",
                     m: 0,
                     borderRadius: 0,
                 },
