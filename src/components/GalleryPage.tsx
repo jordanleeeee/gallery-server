@@ -39,7 +39,7 @@ const GalleryPage = (fileProps: FileProps) => {
     const router = useRouter();
 
     // Use the custom zoom gestures hook
-    const {zoom: galleryZoom, onTouchStart, onTouchMove, handleSliderChange, zoomMin, zoomMax} = useZoomGestures();
+    const {zoom, onTouchStart, onTouchMove, handleSliderChange, zoomMin, zoomMax} = useZoomGestures();
 
     // Handle client-side hydration
     useEffect(() => {
@@ -113,7 +113,7 @@ const GalleryPage = (fileProps: FileProps) => {
 
                     <ZoomIn sx={{mr: 1}} />
                     <Slider
-                        value={galleryZoom}
+                        value={zoom}
                         onChange={handleSliderChange}
                         min={zoomMin}
                         max={zoomMax}
@@ -170,7 +170,7 @@ const GalleryPage = (fileProps: FileProps) => {
                                     width: _.imageWidth!,
                                 };
                             })}
-                            rowHeight={360 * (galleryZoom / 50)}
+                            rowHeight={360 * (zoom / 50)}
                             onClick={idx => setPreview({show: true, idx})}
                             enableImageSelection={false}
                         />
