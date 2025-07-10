@@ -1,4 +1,4 @@
-import React, {useEffect, useState, useMemo, useCallback} from "react";
+import React, {useEffect, useState, useMemo, useCallback, useRef} from "react";
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
@@ -39,6 +39,8 @@ const DirectoryPage = (fileProps: FileProps) => {
     const [isClient, setIsClient] = useState(false);
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+    const restorationAttempted = useRef(false);
+    const initializationAttempted = useRef(false);
 
     // Responsive page size
     const GALLERIES_PER_PAGE = isMobile ? 10 : 30;
@@ -61,39 +63,58 @@ const DirectoryPage = (fileProps: FileProps) => {
         // clear display gallery when page change
         setDisplayedGalleries([]);
         setCurrentPage(1);
+        restorationAttempted.current = false; // Reset restoration flag when page changes
+        initializationAttempted.current = false; // Reset initialization flag when page changes
     }, [router.asPath]);
 
+    // Handle restoration and initialization logic
     useEffect(() => {
-        if (!isClient) return;
+        if (!isClient || galleryDirectors.length === 0) return;
 
         const previousScrollPosition = sessionStorage.getItem("scrollPosition");
         const previousGalleryCount = sessionStorage.getItem("galleryCount");
         const restore = sessionStorage.getItem("restore");
 
-        if (restore && previousScrollPosition && previousGalleryCount) {
+        // Handle restoration
+        if (restore && previousScrollPosition && previousGalleryCount && !restorationAttempted.current) {
+            restorationAttempted.current = true; // Mark that restoration has been attempted
+            console.log("restore", previousGalleryCount, previousScrollPosition);
             const targetGalleryCount = Number.parseInt(previousGalleryCount);
             const targetScrollPosition = Number.parseInt(previousScrollPosition);
 
             // Load the same number of galleries that were previously loaded
-            if (galleryDirectors.length > 0) {
-                const galleriesNeeded = Math.min(targetGalleryCount, galleryDirectors.length);
-                setDisplayedGalleries(galleryDirectors.slice(0, galleriesNeeded));
-                setCurrentPage(Math.ceil(galleriesNeeded / GALLERIES_PER_PAGE));
-            }
+            const galleriesNeeded = Math.min(targetGalleryCount, galleryDirectors.length);
+            setDisplayedGalleries(galleryDirectors.slice(0, galleriesNeeded));
+            setCurrentPage(Math.ceil(galleriesNeeded / GALLERIES_PER_PAGE));
 
             // Restore scroll position after galleries are loaded
             setTimeout(() => {
+                console.log("scroll back", targetScrollPosition);
                 window.scrollTo(0, targetScrollPosition);
                 sessionStorage.removeItem("scrollPosition");
                 sessionStorage.removeItem("galleryCount");
                 sessionStorage.removeItem("restore");
             }, 100);
-        } else {
-            // clear restore record if isn't restored
+        }
+        // Handle normal initialization
+        else if (!restore && !initializationAttempted.current && displayedGalleries.length === 0) {
+            initializationAttempted.current = true; // Mark that initialization has been attempted
+            console.log("init", galleryDirectors.length);
+            setDisplayedGalleries(galleryDirectors.slice(0, GALLERIES_PER_PAGE));
+            setCurrentPage(1);
+        }
+
+        // Clear restore record if not used
+        if (!restore) {
             sessionStorage.removeItem("scrollPosition");
             sessionStorage.removeItem("galleryCount");
             sessionStorage.removeItem("restore");
         }
+    }, [isClient, galleryDirectors, GALLERIES_PER_PAGE, displayedGalleries.length]);
+
+    // Handle router events for saving scroll position
+    useEffect(() => {
+        if (!isClient) return;
 
         const onUnload = () => {
             sessionStorage.setItem("scrollPosition", String(window.scrollY));
@@ -105,30 +126,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => {
             router.events.off("routeChangeStart", onUnload);
         };
-    }, [router.events, isClient, galleryDirectors, displayedGalleries.length, GALLERIES_PER_PAGE]);
-
-    // Initialize displayed galleries on first load (only if not restoring)
-    useEffect(() => {
-        if (galleryDirectors.length > 0) {
-            const restore = sessionStorage.getItem("restore");
-            if (!restore) {
-                setDisplayedGalleries(galleryDirectors.slice(0, GALLERIES_PER_PAGE));
-                setCurrentPage(1);
-            } else {
-            }
-        }
-    }, [galleryDirectors, GALLERIES_PER_PAGE]);
-
-    // Handle responsive page size changes
-    useEffect(() => {
-        if (!isClient || displayedGalleries.length === 0) return;
-
-        // If screen size changed, adjust the current page calculation
-        const newCurrentPage = Math.ceil(displayedGalleries.length / GALLERIES_PER_PAGE);
-        if (newCurrentPage !== currentPage) {
-            setCurrentPage(newCurrentPage);
-        }
-    }, [GALLERIES_PER_PAGE, isClient, displayedGalleries.length, currentPage]);
+    }, [router.events, isClient, displayedGalleries.length]);
 
     // Load more galleries function
     const loadMoreGalleries = useCallback(() => {
@@ -171,7 +169,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [isClient, loadMoreGalleries]);
 
-    function buildBreadcrumbs() {
+    const breadcrumbs = useMemo(() => {
         const urlPart: string[] = decode(fileProps.rootPath + router.asPath)
             .split("/")
             .filter(part => part !== "");
@@ -181,7 +179,7 @@ const DirectoryPage = (fileProps: FileProps) => {
                 {part}
             </Typography>
         ));
-    }
+    }, [fileProps.rootPath, router.asPath]);
 
     // Don't render until client-side hydration is complete to avoid mismatch
     if (!isClient) {
@@ -200,7 +198,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         <Container maxWidth="lg" sx={{py: 3}}>
             <Box sx={{mb: 4}}>
                 <Breadcrumbs separator="/" sx={{mb: 2}}>
-                    {buildBreadcrumbs()}
+                    {breadcrumbs}
                 </Breadcrumbs>
             </Box>
 
