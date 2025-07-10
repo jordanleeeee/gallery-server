@@ -65,7 +65,7 @@ const GalleryPage = (fileProps: FileProps) => {
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
             const scrollHeight = document.documentElement.scrollHeight;
             const clientHeight = window.innerHeight;
-            
+
             // Check if user has scrolled to bottom (with 100px threshold)
             if (scrollTop + clientHeight >= scrollHeight - 200) {
                 loadMoreImages();
@@ -74,9 +74,9 @@ const GalleryPage = (fileProps: FileProps) => {
 
         const loadMoreImages = () => {
             if (isLoadingMore || visibleImageCount >= fileProps.files.length) return;
-            
+
             setIsLoadingMore(true);
-            
+
             // Simulate loading delay for better UX
             setTimeout(() => {
                 setVisibleImageCount(prev => Math.min(prev + 10, fileProps.files.length));
@@ -84,8 +84,8 @@ const GalleryPage = (fileProps: FileProps) => {
             }, 500);
         };
 
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
     }, [isMobile, isLoadingMore, visibleImageCount, fileProps.files.length]);
 
     const handleDeleteGallery = async () => {
@@ -223,7 +223,7 @@ const GalleryPage = (fileProps: FileProps) => {
                             onClick={idx => setPreview({show: true, idx})}
                             enableImageSelection={false}
                         />
-                        
+
                         {/* Loading indicator for mobile when loading more images */}
                         {isMobile && isLoadingMore && (
                             <Box sx={{display: "flex", justifyContent: "center", py: 3}}>
