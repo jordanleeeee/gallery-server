@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useMemo, useCallback} from "react";
 import {File, FileProps} from "@/type/file";
 import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
@@ -49,8 +49,8 @@ const DirectoryPage = (fileProps: FileProps) => {
     const [displayedGalleries, setDisplayedGalleries] = useState<File[]>([]);
 
     // Filter and sort files
-    const galleryDirectors = fileProps.files.filter(_ => _.type === "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
-    const fileAndDirectory = fileProps.files.filter(_ => _.type !== "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify));
+    const galleryDirectors = useMemo(() => fileProps.files.filter(_ => _.type === "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify)), [fileProps.files]);
+    const fileAndDirectory = useMemo(() => fileProps.files.filter(_ => _.type !== "imageDirectory").sort((a, b) => b.lastModify.localeCompare(a.lastModify)), [fileProps.files]);
 
     // Handle client-side hydration
     useEffect(() => {
@@ -105,7 +105,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => {
             router.events.off("routeChangeStart", onUnload);
         };
-    }, [router.events, isClient, galleryDirectors.length, displayedGalleries.length, GALLERIES_PER_PAGE]);
+    }, [router.events, isClient, galleryDirectors, displayedGalleries.length, GALLERIES_PER_PAGE]);
 
     // Initialize displayed galleries on first load (only if not restoring)
     useEffect(() => {
@@ -117,7 +117,7 @@ const DirectoryPage = (fileProps: FileProps) => {
             } else {
             }
         }
-    }, [galleryDirectors.length]);
+    }, [galleryDirectors, GALLERIES_PER_PAGE]);
 
     // Handle responsive page size changes
     useEffect(() => {
@@ -130,27 +130,8 @@ const DirectoryPage = (fileProps: FileProps) => {
         }
     }, [GALLERIES_PER_PAGE, isClient, displayedGalleries.length, currentPage]);
 
-    // Scroll event listener for infinite scroll
-    useEffect(() => {
-        if (!isClient) return;
-
-        const handleScroll = () => {
-            const scrollTop = window.scrollY;
-            const windowHeight = window.innerHeight;
-            const docHeight = document.documentElement.scrollHeight;
-
-            // Check if user is near the bottom (within 200px)
-            if (scrollTop + windowHeight >= docHeight - 200) {
-                loadMoreGalleries();
-            }
-        };
-
-        window.addEventListener("scroll", handleScroll);
-        return () => window.removeEventListener("scroll", handleScroll);
-    }, [isClient, currentPage, isLoadingMore, displayedGalleries.length, galleryDirectors.length]);
-
     // Load more galleries function
-    const loadMoreGalleries = () => {
+    const loadMoreGalleries = useCallback(() => {
         if (isLoadingMore || displayedGalleries.length >= galleryDirectors.length) return;
 
         setIsLoadingMore(true);
@@ -169,7 +150,26 @@ const DirectoryPage = (fileProps: FileProps) => {
             },
             isMobile ? 10 : 500
         );
-    };
+    }, [isLoadingMore, displayedGalleries.length, galleryDirectors, currentPage, GALLERIES_PER_PAGE, isMobile]);
+
+    // Scroll event listener for infinite scroll
+    useEffect(() => {
+        if (!isClient) return;
+
+        const handleScroll = () => {
+            const scrollTop = window.scrollY;
+            const windowHeight = window.innerHeight;
+            const docHeight = document.documentElement.scrollHeight;
+
+            // Check if user is near the bottom (within 200px)
+            if (scrollTop + windowHeight >= docHeight - 200) {
+                loadMoreGalleries();
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, [isClient, loadMoreGalleries]);
 
     function buildBreadcrumbs() {
         const urlPart: string[] = decode(fileProps.rootPath + router.asPath)
