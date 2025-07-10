@@ -1,4 +1,4 @@
-import {useState, useEffect, TouchEventHandler} from "react";
+import {useState, useEffect, useCallback, TouchEventHandler} from "react";
 
 interface ZoomGestureConfig {
     initialZoom?: number;
@@ -54,10 +54,13 @@ const useZoomGestures = (config: ZoomGestureConfig = {}): ZoomGestureReturn => {
         window.localStorage.setItem(storageKey, String(zoom));
     }, [zoom, isClient, storageKey]);
 
-    const setZoom = (newZoom: number) => {
-        const clampedZoom = Math.max(zoomMin, Math.min(zoomMax, newZoom));
-        setZoomState(clampedZoom);
-    };
+    const setZoom = useCallback(
+        (newZoom: number) => {
+            const clampedZoom = Math.max(zoomMin, Math.min(zoomMax, newZoom));
+            setZoomState(clampedZoom);
+        },
+        [zoomMin, zoomMax]
+    );
 
     const onTouchStart: TouchEventHandler<HTMLDivElement> = event => {
         // Only handle multi-touch for pinch gestures
@@ -113,7 +116,7 @@ const useZoomGestures = (config: ZoomGestureConfig = {}): ZoomGestureReturn => {
         return () => {
             window.removeEventListener("wheel", handleWheel);
         };
-    }, [isClient, zoom, wheelSensitivity]);
+    }, [isClient, zoom, wheelSensitivity, setZoom]);
 
     return {
         zoom,
