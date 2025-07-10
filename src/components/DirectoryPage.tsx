@@ -78,7 +78,6 @@ const DirectoryPage = (fileProps: FileProps) => {
         // Handle restoration
         if (restore && previousScrollPosition && previousGalleryCount && !restorationAttempted.current) {
             restorationAttempted.current = true; // Mark that restoration has been attempted
-            console.log("restore", previousGalleryCount, previousScrollPosition);
             const targetGalleryCount = Number.parseInt(previousGalleryCount);
             const targetScrollPosition = Number.parseInt(previousScrollPosition);
 
@@ -89,7 +88,6 @@ const DirectoryPage = (fileProps: FileProps) => {
 
             // Restore scroll position after galleries are loaded
             setTimeout(() => {
-                console.log("scroll back", targetScrollPosition);
                 window.scrollTo(0, targetScrollPosition);
                 sessionStorage.removeItem("scrollPosition");
                 sessionStorage.removeItem("galleryCount");
@@ -99,7 +97,6 @@ const DirectoryPage = (fileProps: FileProps) => {
         // Handle normal initialization
         else if (!restore && !initializationAttempted.current && displayedGalleries.length === 0) {
             initializationAttempted.current = true; // Mark that initialization has been attempted
-            console.log("init", galleryDirectors.length);
             setDisplayedGalleries(galleryDirectors.slice(0, GALLERIES_PER_PAGE));
             setCurrentPage(1);
         }
