@@ -4,6 +4,7 @@ import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import {useRouter} from "next/router";
 import {Gallery} from "react-grid-gallery";
+import {useThemeMode} from "@/contexts/ThemeContext";
 import {
     Container,
     Typography,
@@ -22,8 +23,10 @@ import {
     CircularProgress,
     useMediaQuery,
     useTheme,
+    IconButton,
+    Tooltip,
 } from "@mui/material";
-import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary} from "@mui/icons-material";
+import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary, Brightness4, Brightness7} from "@mui/icons-material";
 
 const dateTimeFormatOptions = {
     day: "2-digit",
@@ -41,6 +44,7 @@ const DirectoryPage = (fileProps: FileProps) => {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const restorationAttempted = useRef(false);
     const initializationAttempted = useRef(false);
+    const {mode, toggleTheme} = useThemeMode();
 
     // Responsive page size
     const GALLERIES_PER_PAGE = isMobile ? 10 : 30;
@@ -194,9 +198,16 @@ const DirectoryPage = (fileProps: FileProps) => {
     return (
         <Container maxWidth="lg" sx={{py: 3}}>
             <Box sx={{mb: 4}}>
-                <Breadcrumbs separator="/" sx={{mb: 2}}>
-                    {breadcrumbs}
-                </Breadcrumbs>
+                <Box sx={{display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2}}>
+                    <Breadcrumbs separator="/" sx={{flex: 1}}>
+                        {breadcrumbs}
+                    </Breadcrumbs>
+                    <Tooltip title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}>
+                        <IconButton onClick={toggleTheme} color="inherit">
+                            {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                        </IconButton>
+                    </Tooltip>
+                </Box>
             </Box>
 
             {fileAndDirectory.length + (router.asPath !== "/" ? 1 : 0) > 0 && (

@@ -36,7 +36,7 @@
 }
 
 .ReactGridGallery_tile-description {
-    background: rgba(255, 255, 255, 0.18) !important;
+    background: #E0E0E0 !important;
     height: 100%;
     backdrop-filter: blur(12px) saturate(180%);
     border-radius: 0 0 8px 8px;

@@ -2,10 +2,14 @@ import "@/styles/globals.css";
 import type {AppProps} from "next/app";
 import {ThemeProvider} from "@mui/material/styles";
 import CssBaseline from "@mui/material/CssBaseline";
-import {theme} from "@/themes/theme";
+import {createAppTheme} from "@/themes/theme";
+import {ThemeContextProvider, useThemeMode} from "@/contexts/ThemeContext";
 import Head from "next/head";
 
-export default function App({Component, pageProps}: AppProps) {
+const ThemedApp = ({Component, pageProps}: AppProps) => {
+    const {mode} = useThemeMode();
+    const theme = createAppTheme(mode);
+
     return (
         <ThemeProvider theme={theme}>
             <CssBaseline />
@@ -17,5 +21,13 @@ export default function App({Component, pageProps}: AppProps) {
             </Head>
             <Component {...pageProps} />
         </ThemeProvider>
+    );
+};
+
+export default function App(props: AppProps) {
+    return (
+        <ThemeContextProvider>
+            <ThemedApp {...props} />
+        </ThemeContextProvider>
     );
 }
