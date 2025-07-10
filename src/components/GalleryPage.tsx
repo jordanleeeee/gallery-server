@@ -1,9 +1,10 @@
-import {TouchEventHandler, useEffect, useState} from "react";
+import {useEffect, useState} from "react";
 import ImageGallery from "react-image-gallery";
 import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
 import {FileProps} from "@/type/file";
 import {decode, getFilePath} from "@/util/urlUtil";
+import useZoomGestures from "@/hooks/useZoomGestures";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {
     AppBar,
@@ -26,13 +27,7 @@ import {
 } from "@mui/material";
 import {ArrowBack, ZoomIn, Delete, Download, FileDownload, DeleteForever} from "@mui/icons-material";
 
-let diffStart: number;
-let zoomStart: number;
-const zoomMin: number = 20;
-const zoomMax: number = 180;
-
 const GalleryPage = (fileProps: FileProps) => {
-    const [galleryZoom, setGalleryZoom] = useState(50);
     const [preview, setPreview] = useState<{show: boolean; idx?: number}>({show: false});
     const [isDownloading, setIsDownloading] = useState(false);
     const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -43,90 +38,14 @@ const GalleryPage = (fileProps: FileProps) => {
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
     const router = useRouter();
 
+    // Use the custom zoom gestures hook
+    const {zoom: galleryZoom, onTouchStart, onTouchMove, handleSliderChange, zoomMin, zoomMax} = useZoomGestures();
+
     // Handle client-side hydration
     useEffect(() => {
         setIsClient(true);
         sessionStorage.setItem("restore", "true");
     }, []);
-
-    const zoomGallery = (event: Event, newValue: number | number[]) => {
-        setGalleryZoom(newValue as number);
-    };
-
-    // Load zoom level from localStorage - only on client side
-    useEffect(() => {
-        if (!isClient) return;
-
-        const zoomLevel = window.localStorage.getItem("zoomLevel");
-        if (zoomLevel !== null) {
-            setGalleryZoom(parseInt(zoomLevel));
-        }
-    }, [isClient]);
-
-    // Save zoom level to localStorage
-    useEffect(() => {
-        if (!isClient) return;
-
-        window.localStorage.setItem("zoomLevel", String(galleryZoom));
-    }, [galleryZoom, isClient]);
-
-    const onTouchStart: TouchEventHandler<HTMLDivElement> = event => {
-        // Only handle multi-touch for pinch gestures
-        if (event.touches.length !== 2) {
-            return;
-        }
-
-        const touch1 = event.touches[0];
-        const touch2 = event.touches[1];
-
-        diffStart = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
-        zoomStart = galleryZoom;
-    };
-
-    const onTouchMove: TouchEventHandler<HTMLDivElement> = event => {
-        // Only handle multi-touch for pinch gestures
-        if (event.touches.length !== 2) return;
-
-        const touch1 = event.touches[0];
-        const touch2 = event.touches[1];
-
-        const diffNow = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
-        const scaleFactor = (diffNow - diffStart) / 5; // Reduced sensitivity
-        let targetZoom = zoomStart + scaleFactor;
-
-        if (targetZoom >= zoomMax) targetZoom = zoomMax;
-        else if (targetZoom <= zoomMin) targetZoom = zoomMin;
-
-        setGalleryZoom(Math.round(targetZoom));
-    };
-
-    // Global wheel event handler for trackpad zoom
-    useEffect(() => {
-        if (!isClient) return;
-
-        const handleWheel = (event: WheelEvent) => {
-            // Only handle pinch gestures on trackpad (Ctrl key + wheel)
-            if (!event.ctrlKey) return;
-
-            event.preventDefault(); // Prevent browser zoom only when over gallery
-            event.stopPropagation(); // Stop event bubbling
-
-            const delta = event.deltaY;
-            const scaleFactor = -delta / 2; // Reduced sensitivity
-            let targetZoom = galleryZoom + scaleFactor;
-
-            if (targetZoom >= zoomMax) targetZoom = zoomMax;
-            else if (targetZoom <= zoomMin) targetZoom = zoomMin;
-
-            setGalleryZoom(Math.round(targetZoom));
-        };
-
-        window.addEventListener("wheel", handleWheel, {passive: false});
-
-        return () => {
-            window.removeEventListener("wheel", handleWheel);
-        };
-    }, [isClient, galleryZoom]);
 
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
@@ -195,7 +114,7 @@ const GalleryPage = (fileProps: FileProps) => {
                     <ZoomIn sx={{mr: 1}} />
                     <Slider
                         value={galleryZoom}
-                        onChange={zoomGallery}
+                        onChange={handleSliderChange}
                         min={zoomMin}
                         max={zoomMax}
                         sx={{
