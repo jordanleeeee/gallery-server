@@ -311,11 +311,8 @@ const GalleryPreview = (props: PreviewProps) => {
                             };
                         })}
                         startIndex={props.display.idx}
-                        showPlayButton={false}
-                        showFullscreenButton={true}
-                        showBullets={false}
+                        slideInterval={2000}
                         showIndex={true}
-                        slideOnThumbnailOver={false}
                         showThumbnails={showExtra}
                         showNav={showExtra}
                         onScreenChange={fullScreen => setShowExtra(!fullScreen)}
