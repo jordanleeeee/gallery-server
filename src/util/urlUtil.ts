@@ -27,7 +27,7 @@ export function getResourcesPath(parent: string, file: File): string {
 }
 
 export function getFilePath(parent: string, fileName: string): string {
-    let destination = "/api" + parent;
+    let destination = "/api/image" + parent;
     if (parent.length > 1) destination += "/";
     destination += encode(fileName);
     return destination;

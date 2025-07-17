@@ -91,7 +91,7 @@ const GalleryPage = (fileProps: FileProps) => {
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
         try {
-            await fetch(`/api/${router.asPath}`, {method: "DELETE"});
+            await fetch(`/api/image/${router.asPath}`, {method: "DELETE"});
             router.back();
         } catch (error) {
             console.error("Delete failed:", error);
@@ -110,7 +110,7 @@ const GalleryPage = (fileProps: FileProps) => {
 
         try {
             // Create download URL for server-side zip generation
-            const zipUrl = `/api${router.asPath}?download=zip`;
+            const zipUrl = `/api/zip${router.asPath}`;
 
             // Create a temporary link element and trigger download
             // This allows the browser to start the download immediately
