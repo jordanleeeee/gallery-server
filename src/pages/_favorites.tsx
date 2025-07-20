@@ -5,10 +5,14 @@ import {useFavorites} from "@/hooks/useFavorites";
 import {useThemeMode} from "@/contexts/ThemeContext";
 import {Container, Typography, Box, Paper, IconButton, Tooltip, Card, CardContent, useMediaQuery, useTheme, Chip, Button, CircularProgress} from "@mui/material";
 import {ArrowBack, Favorite, Brightness4, Brightness7, FolderOpen, PhotoLibrary} from "@mui/icons-material";
+import {GetServerSideProps} from "next";
+import {FileProps} from "@/type/file";
+import {getRootPath} from "@/util/urlUtil";
+import {getLogger} from "@/util/logger";
 
-const FavoritesPage = () => {
+const FavoritesPage = (fileProps: FileProps) => {
     const router = useRouter();
-    const {favorites, removeFromFavorites} = useFavorites();
+    const {favorites, removeFromFavorites} = useFavorites(fileProps.rootPath);
     const {mode, toggleTheme} = useThemeMode();
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("md"));
@@ -282,6 +286,26 @@ const FavoritesPage = () => {
             )}
         </Container>
     );
+};
+
+const logger = getLogger();
+export const getServerSideProps: GetServerSideProps<FileProps> = async ({params, req}) => {
+    let rootPath = getRootPath();
+    logger.info("on request", {method: "GET", path: "/_favorites", ip: req.socket.remoteAddress, params});
+
+    try {
+        return {
+            props: {
+                rootPath,
+                files: [],
+            },
+        };
+    } catch (e) {
+        logger.error(e);
+        return {
+            notFound: true,
+        };
+    }
 };
 
 export default FavoritesPage;

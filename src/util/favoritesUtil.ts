@@ -3,9 +3,10 @@ import {FavoriteGallery, FavoritesData} from "@/type/file";
 const FAVORITES_STORAGE_KEY = "gallery-favorites";
 
 /**
- * Get all favorites from localStorage
+ * Get favorites from localStorage filtered by rootPath
+ * @param rootPath - Root path to filter favorites
  */
-export function getFavoritesFromStorage(): FavoriteGallery[] {
+export function getFavoritesFromStorage(rootPath: string): FavoriteGallery[] {
     if (typeof window === "undefined") return [];
 
     try {
@@ -13,7 +14,9 @@ export function getFavoritesFromStorage(): FavoriteGallery[] {
         if (!stored) return [];
 
         const data: FavoritesData = JSON.parse(stored);
-        return data.galleries || [];
+        const allGalleries = data.galleries || [];
+
+        return allGalleries.filter(gallery => gallery.rootPath === rootPath);
     } catch (error) {
         console.error("Error reading favorites from localStorage:", error);
         return [];
@@ -39,36 +42,66 @@ export function saveFavoritesToStorage(galleries: FavoriteGallery[]): void {
 
 /**
  * Add a gallery to favorites
+ * @param gallery - The gallery to add to favorites
+ * @param rootPath - Root path to filter the returned favorites
  */
-export function addGalleryToFavorites(gallery: FavoriteGallery): FavoriteGallery[] {
-    const favorites = getFavoritesFromStorage();
+export function addGalleryToFavorites(gallery: FavoriteGallery, rootPath: string): FavoriteGallery[] {
+    if (typeof window === "undefined") return [];
 
-    // Check if already exists
-    if (favorites.some(fav => fav.path === gallery.path)) {
-        return favorites;
+    try {
+        const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        const data: FavoritesData = stored ? JSON.parse(stored) : {galleries: []};
+        const allFavorites = data.galleries || [];
+
+        // Check if already exists
+        if (allFavorites.some(fav => fav.path === gallery.path)) {
+            return getFavoritesFromStorage(rootPath);
+        }
+
+        const updatedAllFavorites = [gallery, ...allFavorites];
+        saveFavoritesToStorage(updatedAllFavorites);
+
+        // Return filtered favorites for the hook
+        return getFavoritesFromStorage(rootPath);
+    } catch (error) {
+        console.error("Error adding gallery to favorites:", error);
+        return getFavoritesFromStorage(rootPath);
     }
-
-    const updatedFavorites = [gallery, ...favorites];
-    saveFavoritesToStorage(updatedFavorites);
-    return updatedFavorites;
 }
 
 /**
  * Remove a gallery from favorites
+ * @param galleryPath - The path of the gallery to remove
+ * @param rootPath - Root path to filter the returned favorites
  */
-export function removeGalleryFromFavorites(galleryPath: string): FavoriteGallery[] {
-    const favorites = getFavoritesFromStorage();
+export function removeGalleryFromFavorites(galleryPath: string, rootPath: string): FavoriteGallery[] {
+    if (typeof window === "undefined") return [];
 
-    const updatedFavorites = favorites.filter(fav => fav.path !== galleryPath);
-    saveFavoritesToStorage(updatedFavorites);
-    return updatedFavorites;
+    try {
+        const stored = localStorage.getItem(FAVORITES_STORAGE_KEY);
+        if (!stored) return [];
+
+        const data: FavoritesData = JSON.parse(stored);
+        const allFavorites = data.galleries || [];
+
+        const updatedAllFavorites = allFavorites.filter(fav => fav.path !== galleryPath);
+        saveFavoritesToStorage(updatedAllFavorites);
+
+        // Return filtered favorites for the hook
+        return getFavoritesFromStorage(rootPath);
+    } catch (error) {
+        console.error("Error removing gallery from favorites:", error);
+        return getFavoritesFromStorage(rootPath);
+    }
 }
 
 /**
- * Check if a gallery is favorited
+ * Check if a gallery is favorited within a specific rootPath
+ * @param galleryPath - The path of the gallery to check
+ * @param rootPath - Root path to filter the search
  */
-export function isGalleryFavorited(galleryPath: string): boolean {
-    const favorites = getFavoritesFromStorage();
+export function isGalleryFavorited(galleryPath: string, rootPath: string): boolean {
+    const favorites = getFavoritesFromStorage(rootPath);
     return favorites.some(fav => fav.path === galleryPath);
 }
 
@@ -81,8 +114,9 @@ export function clearAllFavorites(): void {
 }
 
 /**
- * Get favorites count
+ * Get favorites count for a specific rootPath
+ * @param rootPath - Root path to filter the count
  */
-export function getFavoritesCount(): number {
-    return getFavoritesFromStorage().length;
+export function getFavoritesCount(rootPath: string): number {
+    return getFavoritesFromStorage(rootPath).length;
 }

@@ -46,7 +46,7 @@ const GalleryPage = (fileProps: FileProps) => {
     const {zoom, onTouchStart, onTouchMove, handleSliderChange, zoomMin, zoomMax} = useZoomGestures();
 
     // Use favorites hook
-    const {isFavorited, toggleFavorite} = useFavorites();
+    const {isFavorited, toggleFavorite} = useFavorites(fileProps.rootPath);
 
     // Handle client-side hydration
     useEffect(() => {

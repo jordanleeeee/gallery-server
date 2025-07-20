@@ -47,7 +47,7 @@ const DirectoryPage = (fileProps: FileProps) => {
     const restorationAttempted = useRef(false);
     const initializationAttempted = useRef(false);
     const {mode, toggleTheme} = useThemeMode();
-    const {isFavorited, toggleFavorite, favoritesCount} = useFavorites();
+    const {isFavorited, toggleFavorite, favoritesCount} = useFavorites(fileProps.rootPath);
 
     // Responsive page size
     const GALLERIES_PER_PAGE = isMobile ? 10 : 30;

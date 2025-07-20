@@ -13,9 +13,10 @@ interface UseFavoritesReturn {
 }
 
 /**
- * Custom hook for managing gallery favorites
+ * Custom hook for managing gallery favorites within a specific rootPath
+ * @param rootPath - Root path to filter favorites
  */
-export const useFavorites = (): UseFavoritesReturn => {
+export const useFavorites = (rootPath: string): UseFavoritesReturn => {
     const [favorites, setFavorites] = useState<FavoriteGallery[]>([]);
     const [favoritesCount, setFavoritesCount] = useState<number>(0);
     const [isClient, setIsClient] = useState(false);
@@ -29,30 +30,30 @@ export const useFavorites = (): UseFavoritesReturn => {
     useEffect(() => {
         if (!isClient) return;
 
-        const loadedFavorites = getFavoritesFromStorage();
+        const loadedFavorites = getFavoritesFromStorage(rootPath);
         setFavorites(loadedFavorites);
         setFavoritesCount(loadedFavorites.length);
-    }, [isClient]);
+    }, [isClient, rootPath]);
 
     // Refresh favorites from storage
     const refreshFavorites = useCallback(() => {
         if (!isClient) return;
 
-        const loadedFavorites = getFavoritesFromStorage();
+        const loadedFavorites = getFavoritesFromStorage(rootPath);
         setFavorites(loadedFavorites);
         setFavoritesCount(loadedFavorites.length);
-    }, [isClient]);
+    }, [isClient, rootPath]);
 
     // Add gallery to favorites
     const addToFavorites = useCallback(
         (gallery: FavoriteGallery) => {
             if (!isClient) return;
 
-            const updatedFavorites = addGalleryToFavorites(gallery);
+            const updatedFavorites = addGalleryToFavorites(gallery, rootPath);
             setFavorites(updatedFavorites);
             setFavoritesCount(updatedFavorites.length);
         },
-        [isClient]
+        [isClient, rootPath]
     );
 
     // Remove gallery from favorites
@@ -60,20 +61,20 @@ export const useFavorites = (): UseFavoritesReturn => {
         (galleryPath: string) => {
             if (!isClient) return;
 
-            const updatedFavorites = removeGalleryFromFavorites(galleryPath);
+            const updatedFavorites = removeGalleryFromFavorites(galleryPath, rootPath);
             setFavorites(updatedFavorites);
             setFavoritesCount(updatedFavorites.length);
         },
-        [isClient]
+        [isClient, rootPath]
     );
 
     // Check if gallery is favorited
     const isFavorited = useCallback(
         (galleryPath: string): boolean => {
             if (!isClient) return false;
-            return isGalleryFavorited(galleryPath);
+            return isGalleryFavorited(galleryPath, rootPath);
         },
-        [isClient]
+        [isClient, rootPath]
     );
 
     // Toggle favorite status
@@ -81,13 +82,13 @@ export const useFavorites = (): UseFavoritesReturn => {
         (gallery: FavoriteGallery) => {
             if (!isClient) return;
 
-            if (isGalleryFavorited(gallery.path)) {
+            if (isGalleryFavorited(gallery.path, rootPath)) {
                 removeFromFavorites(gallery.path);
             } else {
                 addToFavorites(gallery);
             }
         },
-        [isClient, addToFavorites, removeFromFavorites]
+        [isClient, addToFavorites, removeFromFavorites, rootPath]
     );
 
     return {
