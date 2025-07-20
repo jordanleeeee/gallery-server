@@ -101,8 +101,8 @@ const GalleryPage = (fileProps: FileProps) => {
             path: router.asPath,
             rootPath: fileProps.rootPath,
             thumbnailPath: getFilePath(router.asPath, fileProps.files[0].path),
-            imageWidth: fileProps.files[0].imageWidth,
-            imageHeight: fileProps.files[0].imageHeight,
+            imageWidth: fileProps.files[0].imageWidth!,
+            imageHeight: fileProps.files[0].imageHeight!,
         };
 
         toggleFavorite(favoriteGallery);
