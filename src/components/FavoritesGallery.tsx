@@ -284,4 +284,4 @@ export const FavoritesGallery: React.FC<FavoritesGalleryProps> = ({rootPath}) =>
             )}
         </Container>
     );
-}; 
+};
