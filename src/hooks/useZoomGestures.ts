@@ -30,29 +30,19 @@ const useZoomGestures = (config: ZoomGestureConfig = {}): ZoomGestureReturn => {
     const {initialZoom = 50, zoomMin = 20, zoomMax = 180, touchSensitivity = 5, wheelSensitivity = 2, storageKey = "zoomLevel"} = config;
 
     const [zoom, setZoomState] = useState(initialZoom);
-    const [isClient, setIsClient] = useState(false);
 
-    // Handle client-side hydration
+    // Load zoom level from localStorage on mount
     useEffect(() => {
-        setIsClient(true);
-    }, []);
-
-    // Load zoom level from localStorage - only on client side
-    useEffect(() => {
-        if (!isClient) return;
-
-        const savedZoom = window.localStorage.getItem(storageKey);
+        const savedZoom = localStorage.getItem(storageKey);
         if (savedZoom !== null) {
             setZoomState(parseInt(savedZoom));
         }
-    }, [isClient, storageKey]);
+    }, [storageKey]);
 
-    // Save zoom level to localStorage
+    // Save zoom level to localStorage whenever zoom changes
     useEffect(() => {
-        if (!isClient) return;
-
-        window.localStorage.setItem(storageKey, String(zoom));
-    }, [zoom, isClient, storageKey]);
+        localStorage.setItem(storageKey, String(zoom));
+    }, [zoom, storageKey]);
 
     const setZoom = useCallback(
         (newZoom: number) => {
@@ -95,8 +85,6 @@ const useZoomGestures = (config: ZoomGestureConfig = {}): ZoomGestureReturn => {
 
     // Global wheel event handler for trackpad zoom
     useEffect(() => {
-        if (!isClient) return;
-
         const handleWheel = (event: WheelEvent) => {
             // Only handle pinch gestures on trackpad (Ctrl key + wheel)
             if (!event.ctrlKey) return;
@@ -116,7 +104,7 @@ const useZoomGestures = (config: ZoomGestureConfig = {}): ZoomGestureReturn => {
         return () => {
             window.removeEventListener("wheel", handleWheel);
         };
-    }, [isClient, zoom, wheelSensitivity, setZoom]);
+    }, [zoom, wheelSensitivity, setZoom]);
 
     return {
         zoom,

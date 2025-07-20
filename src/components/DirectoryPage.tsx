@@ -76,7 +76,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
     // Handle restoration and initialization logic
     useEffect(() => {
-        if (!isClient || galleryDirectors.length === 0) return;
+        if (galleryDirectors.length === 0) return;
 
         const previousScrollPosition = sessionStorage.getItem("scrollPosition");
         const previousGalleryCount = sessionStorage.getItem("galleryCount");
@@ -114,12 +114,10 @@ const DirectoryPage = (fileProps: FileProps) => {
             sessionStorage.removeItem("galleryCount");
             sessionStorage.removeItem("restore");
         }
-    }, [isClient, galleryDirectors, GALLERIES_PER_PAGE, displayedGalleries.length]);
+    }, [galleryDirectors, GALLERIES_PER_PAGE, displayedGalleries.length]);
 
     // Handle router events for saving scroll position
     useEffect(() => {
-        if (!isClient) return;
-
         const onUnload = () => {
             sessionStorage.setItem("scrollPosition", String(window.scrollY));
             sessionStorage.setItem("galleryCount", String(displayedGalleries.length));
@@ -130,7 +128,7 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => {
             router.events.off("routeChangeStart", onUnload);
         };
-    }, [router.events, isClient, displayedGalleries.length]);
+    }, [router.events, displayedGalleries.length]);
 
     // Load more galleries function
     const loadMoreGalleries = useCallback(() => {
@@ -156,8 +154,6 @@ const DirectoryPage = (fileProps: FileProps) => {
 
     // Scroll event listener for infinite scroll
     useEffect(() => {
-        if (!isClient) return;
-
         const handleScroll = () => {
             const scrollTop = window.scrollY;
             const windowHeight = window.innerHeight;
@@ -171,7 +167,7 @@ const DirectoryPage = (fileProps: FileProps) => {
 
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
-    }, [isClient, loadMoreGalleries]);
+    }, [loadMoreGalleries]);
 
     // Handle favorite toggle for galleries
     const handleFavoriteToggle = useCallback(
