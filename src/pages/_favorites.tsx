@@ -1,10 +1,10 @@
-import React, {useEffect, useState, useMemo, useCallback, useRef} from "react";
+import React, {useEffect, useState, useCallback, useRef} from "react";
 import {useRouter} from "next/router";
 import {Gallery} from "react-grid-gallery";
 import {useFavorites} from "@/hooks/useFavorites";
 import {useThemeMode} from "@/contexts/ThemeContext";
 import {Container, Typography, Box, Paper, IconButton, Tooltip, Card, CardContent, useMediaQuery, useTheme, Chip, Button, CircularProgress} from "@mui/material";
-import {ArrowBack, Favorite, Brightness4, Brightness7, FolderOpen} from "@mui/icons-material";
+import {ArrowBack, Favorite, Brightness4, Brightness7, FolderOpen, PhotoLibrary} from "@mui/icons-material";
 
 const FavoritesPage = () => {
     const router = useRouter();
@@ -216,63 +216,69 @@ const FavoritesPage = () => {
                     </CardContent>
                 </Card>
             ) : (
-                <Paper sx={{px: 0.25, py: 2, bgcolor: "background.paper"}}>
-                    <Gallery
-                        images={displayedFavorites.map((fav, _idx) => ({
-                            src: fav.thumbnailPath,
-                            height: fav.imageHeight || 300,
-                            width: fav.imageWidth || 400,
-                            thumbnailCaption: getDisplayName(fav.path),
-                            customOverlay: (
-                                <Box
-                                    sx={{
-                                        position: "absolute",
-                                        top: 8,
-                                        right: 8,
-                                        zIndex: 10,
-                                        pointerEvents: "auto",
-                                    }}
-                                >
-                                    <IconButton
-                                        size="small"
-                                        onClick={_ => removeFromFavorites(fav.path)}
+                <Box sx={{mb: 4}}>
+                    <Typography variant="h6" sx={{mb: 2, display: "flex", alignItems: "center"}}>
+                        <PhotoLibrary sx={{mr: 1, color: "primary.main"}} />
+                        Image Galleries
+                    </Typography>
+                    <Paper sx={{px: 0.25, py: 2, bgcolor: "background.paper"}}>
+                        <Gallery
+                            images={displayedFavorites.map((fav, _idx) => ({
+                                src: fav.thumbnailPath,
+                                height: fav.imageHeight,
+                                width: fav.imageWidth,
+                                thumbnailCaption: getDisplayName(fav.path),
+                                customOverlay: (
+                                    <Box
                                         sx={{
-                                            backgroundColor: "rgba(45, 25, 25, 0.9)",
-                                            "&:hover": {
-                                                backgroundColor: "rgba(255, 255, 255, 1)",
-                                            },
-                                            width: 36,
-                                            height: 36,
+                                            position: "absolute",
+                                            top: 8,
+                                            right: 8,
+                                            zIndex: 10,
                                             pointerEvents: "auto",
                                         }}
                                     >
-                                        <Favorite sx={{color: "red", fontSize: 20}} />
-                                    </IconButton>
-                                </Box>
-                            ),
-                        }))}
-                        rowHeight={isMobile ? 200 : 288}
-                        onClick={handleGalleryClick}
-                        enableImageSelection={false}
-                    />
+                                        <IconButton
+                                            size="small"
+                                            onClick={_ => removeFromFavorites(fav.path)}
+                                            sx={{
+                                                backgroundColor: "rgba(45, 25, 25, 0.9)",
+                                                "&:hover": {
+                                                    backgroundColor: "rgba(255, 255, 255, 1)",
+                                                },
+                                                width: 36,
+                                                height: 36,
+                                                pointerEvents: "auto",
+                                            }}
+                                        >
+                                            <Favorite sx={{color: "red", fontSize: 20}} />
+                                        </IconButton>
+                                    </Box>
+                                ),
+                            }))}
+                            rowHeight={288}
+                            onClick={handleGalleryClick}
+                            enableImageSelection={false}
+                        />
 
-                    {isLoadingMore && (
-                        <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
-                            <CircularProgress size={24} />
-                            <Typography variant="body2" sx={{ml: 1, alignSelf: "center"}}>
-                                Loading more favorites...
-                            </Typography>
-                        </Box>
-                    )}
+                        {isLoadingMore && (
+                            <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                                <CircularProgress size={24} />
+                                <Typography variant="body2" sx={{ml: 1, alignSelf: "center"}}>
+                                    Loading more favorites...
+                                </Typography>
+                            </Box>
+                        )}
 
-                    {displayedFavorites.length >= favorites.length && favorites.length > FAVORITES_PER_PAGE && (
-                        <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
-                            <Typography variant="body2" color="text.secondary">
-                                All favorites loaded
-                            </Typography>
-                        </Box>
-                    )}
-                </Paper>
+                        {displayedFavorites.length >= favorites.length && favorites.length > FAVORITES_PER_PAGE && (
+                            <Box sx={{display: "flex", justifyContent: "center", mt: 2}}>
+                                <Typography variant="body2" color="text.secondary">
+                                    All favorites loaded
+                                </Typography>
+                            </Box>
+                        )}
+                    </Paper>
+                </Box>
             )}
         </Container>
     );

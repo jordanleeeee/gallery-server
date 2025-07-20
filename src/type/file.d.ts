@@ -19,8 +19,8 @@ export interface FavoriteGallery {
     path: string; // Gallery path from root (e.g., "/photos/vacation")
     rootPath: string; // Root path for the gallery
     thumbnailPath: string; // First image path for preview
-    imageWidth?: number; // Thumbnail dimensions
-    imageHeight?: number; // Thumbnail dimensions
+    imageWidth: number; // Thumbnail dimensions
+    imageHeight: number; // Thumbnail dimensions
 }
 
 export interface FavoritesData {

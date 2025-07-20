@@ -183,8 +183,8 @@ const DirectoryPage = (fileProps: FileProps) => {
                 path: getDirectoryPath(router.asPath, galleryFile.path).replace(/\/$/, ""),
                 rootPath: fileProps.rootPath,
                 thumbnailPath: getFilePath(router.asPath, galleryFile.icon!),
-                imageWidth: galleryFile.imageWidth,
-                imageHeight: galleryFile.imageHeight,
+                imageWidth: galleryFile.imageWidth!,
+                imageHeight: galleryFile.imageHeight!,
             };
 
             toggleFavorite(favoriteGallery);
