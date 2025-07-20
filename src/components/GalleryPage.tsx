@@ -2,9 +2,10 @@ import {useEffect, useState} from "react";
 import ImageGallery from "react-image-gallery";
 import {Gallery} from "react-grid-gallery";
 import {useRouter} from "next/router";
-import {FileProps} from "@/type/file";
+import {FileProps, FavoriteGallery} from "@/type/file";
 import {decode, getFilePath} from "@/util/urlUtil";
 import useZoomGestures from "@/hooks/useZoomGestures";
+import {useFavorites} from "@/hooks/useFavorites";
 import "react-image-gallery/styles/css/image-gallery.css";
 import {
     AppBar,
@@ -24,8 +25,9 @@ import {
     CircularProgress,
     useMediaQuery,
     useTheme,
+    Tooltip,
 } from "@mui/material";
-import {ArrowBack, ZoomIn, Delete, Download, FileDownload, DeleteForever} from "@mui/icons-material";
+import {ArrowBack, ZoomIn, Delete, Download, FileDownload, DeleteForever, Favorite, FavoriteBorder} from "@mui/icons-material";
 
 const GalleryPage = (fileProps: FileProps) => {
     const [preview, setPreview] = useState<{show: boolean; idx?: number}>({show: false});
@@ -42,6 +44,9 @@ const GalleryPage = (fileProps: FileProps) => {
 
     // Use the custom zoom gestures hook
     const {zoom, onTouchStart, onTouchMove, handleSliderChange, zoomMin, zoomMax} = useZoomGestures();
+
+    // Use favorites hook
+    const {isFavorited, toggleFavorite} = useFavorites();
 
     // Handle client-side hydration
     useEffect(() => {
@@ -88,10 +93,25 @@ const GalleryPage = (fileProps: FileProps) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [isMobile, isLoadingMore, visibleImageCount, fileProps.files.length]);
 
+    // Handle favorite toggle for current gallery
+    const handleFavoriteToggle = () => {
+        if (!fileProps.files.length) return;
+
+        const favoriteGallery: FavoriteGallery = {
+            path: router.asPath,
+            rootPath: fileProps.rootPath,
+            thumbnailPath: getFilePath(router.asPath, fileProps.files[0].path),
+            imageWidth: fileProps.files[0].imageWidth,
+            imageHeight: fileProps.files[0].imageHeight,
+        };
+
+        toggleFavorite(favoriteGallery);
+    };
+
     const handleDeleteGallery = async () => {
         setDeleteDialogOpen(false);
         try {
-            await fetch(`/api/image/${router.asPath}`, {method: "DELETE"});
+            await fetch(`/api/resource/${router.asPath}`, {method: "DELETE"});
             router.back();
         } catch (error) {
             console.error("Delete failed:", error);
@@ -181,6 +201,11 @@ const GalleryPage = (fileProps: FileProps) => {
                             },
                         }}
                     />
+                    <Tooltip title={isFavorited(router.asPath) ? "Remove from Favorites" : "Add to Favorites"}>
+                        <IconButton color="inherit" onClick={handleFavoriteToggle}>
+                            {isFavorited(router.asPath) ? <Favorite sx={{color: "red"}} /> : <FavoriteBorder />}
+                        </IconButton>
+                    </Tooltip>
                     <IconButton color="inherit" onClick={() => setDeleteDialogOpen(true)}>
                         <Delete />
                     </IconButton>

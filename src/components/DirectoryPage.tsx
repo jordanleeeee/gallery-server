@@ -1,10 +1,11 @@
 import React, {useEffect, useState, useMemo, useCallback, useRef} from "react";
-import {File, FileProps} from "@/type/file";
+import {File, FileProps, FavoriteGallery} from "@/type/file";
 import Link from "next/link";
 import {decode, getDirectoryPath, getFilePath, getResourcesPath} from "@/util/urlUtil";
 import {useRouter} from "next/router";
 import {Gallery} from "react-grid-gallery";
 import {useThemeMode} from "@/contexts/ThemeContext";
+import {useFavorites} from "@/hooks/useFavorites";
 import {
     Container,
     Typography,
@@ -25,8 +26,9 @@ import {
     useTheme,
     IconButton,
     Tooltip,
+    Badge,
 } from "@mui/material";
-import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary, Brightness4, Brightness7} from "@mui/icons-material";
+import {Folder, InsertDriveFile, ArrowBack, PhotoLibrary, Brightness4, Brightness7, Favorite, FavoriteBorder} from "@mui/icons-material";
 
 const dateTimeFormatOptions = {
     day: "2-digit",
@@ -45,6 +47,7 @@ const DirectoryPage = (fileProps: FileProps) => {
     const restorationAttempted = useRef(false);
     const initializationAttempted = useRef(false);
     const {mode, toggleTheme} = useThemeMode();
+    const {isFavorited, toggleFavorite, favoritesCount} = useFavorites();
 
     // Responsive page size
     const GALLERIES_PER_PAGE = isMobile ? 10 : 30;
@@ -170,6 +173,25 @@ const DirectoryPage = (fileProps: FileProps) => {
         return () => window.removeEventListener("scroll", handleScroll);
     }, [isClient, loadMoreGalleries]);
 
+    // Handle favorite toggle for galleries
+    const handleFavoriteToggle = useCallback(
+        (galleryFile: File, event: React.MouseEvent) => {
+            event.stopPropagation(); // Prevent gallery navigation
+            event.preventDefault(); // Prevent any default behavior
+
+            const favoriteGallery: FavoriteGallery = {
+                path: getDirectoryPath(router.asPath, galleryFile.path).replace(/\/$/, ""),
+                rootPath: fileProps.rootPath,
+                thumbnailPath: getFilePath(router.asPath, galleryFile.icon!),
+                imageWidth: galleryFile.imageWidth,
+                imageHeight: galleryFile.imageHeight,
+            };
+
+            toggleFavorite(favoriteGallery);
+        },
+        [router.asPath, toggleFavorite, fileProps.rootPath]
+    );
+
     const breadcrumbs = useMemo(() => {
         const urlPart: string[] = decode(fileProps.rootPath + router.asPath)
             .split("/")
@@ -202,11 +224,20 @@ const DirectoryPage = (fileProps: FileProps) => {
                     <Breadcrumbs separator="/" sx={{flex: 1}}>
                         {breadcrumbs}
                     </Breadcrumbs>
-                    <Tooltip title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}>
-                        <IconButton onClick={toggleTheme} color="inherit">
-                            {mode === "light" ? <Brightness4 /> : <Brightness7 />}
-                        </IconButton>
-                    </Tooltip>
+                    <Box sx={{display: "flex", alignItems: "center", gap: 1}}>
+                        <Tooltip title="View Favorites">
+                            <IconButton onClick={() => router.push("/_favorites")} color="inherit">
+                                <Badge badgeContent={favoritesCount} color="secondary">
+                                    <Favorite />
+                                </Badge>
+                            </IconButton>
+                        </Tooltip>
+                        <Tooltip title={`Switch to ${mode === "light" ? "dark" : "light"} mode`}>
+                            <IconButton onClick={toggleTheme} color="inherit">
+                                {mode === "light" ? <Brightness4 /> : <Brightness7 />}
+                            </IconButton>
+                        </Tooltip>
+                    </Box>
                 </Box>
             </Box>
 
@@ -252,12 +283,43 @@ const DirectoryPage = (fileProps: FileProps) => {
 
                     <Paper sx={{px: 0.25, py: 2, bgcolor: "background.paper"}}>
                         <Gallery
-                            images={displayedGalleries.map(_ => {
+                            images={displayedGalleries.map((_, _idx) => {
+                                const galleryPath = getDirectoryPath(router.asPath, _.path).replace(/\/$/, "");
+                                const isCurrentlyFavorited = isFavorited(galleryPath);
+
                                 return {
                                     src: getFilePath(router.asPath, _.icon!),
                                     height: _.imageHeight!,
                                     width: _.imageWidth!,
                                     thumbnailCaption: _.path + (_.path.includes("P】") ? "" : `【${_.imageCount}P】`),
+                                    customOverlay: (
+                                        <Box
+                                            sx={{
+                                                position: "absolute",
+                                                top: 8,
+                                                right: 8,
+                                                zIndex: 10,
+                                                pointerEvents: "auto",
+                                            }}
+                                        >
+                                            <IconButton
+                                                size="small"
+                                                onClick={event => handleFavoriteToggle(_, event)}
+                                                onMouseDown={event => event.stopPropagation()}
+                                                sx={{
+                                                    backgroundColor: "rgba(255, 255, 255, 0.9)",
+                                                    "&:hover": {
+                                                        backgroundColor: "rgba(255, 255, 255, 1)",
+                                                    },
+                                                    width: 36,
+                                                    height: 36,
+                                                    pointerEvents: "auto",
+                                                }}
+                                            >
+                                                {isCurrentlyFavorited ? <Favorite sx={{color: "red", fontSize: 20}} /> : <FavoriteBorder sx={{color: "gray", fontSize: 20}} />}
+                                            </IconButton>
+                                        </Box>
+                                    ),
                                 };
                             })}
                             rowHeight={288}

@@ -13,7 +13,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     let decodedUrl = decode(req.url!);
     logger.info("on request", {method: req.method, path: decodedUrl, ip: req.socket.remoteAddress});
 
-    let requestPath = getRootPath() + decodedUrl.substring(10, decodedUrl.length).split("?")[0];
+    let requestPath = getRootPath() + decodedUrl.substring(13, decodedUrl.length).split("?")[0];
 
     if (req.method === "GET") {
         const fromLocal = req.headers.host!.includes("localhost") || req.headers.host!.includes("127.0.0.1");
